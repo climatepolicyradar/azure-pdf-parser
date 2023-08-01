@@ -1,4 +1,8 @@
 .PHONY: test
 
+install:
+	poetry shell
+	poetry install
+
 test:
-	python -m pytest -vvv
+	poetry run python -m pytest -vvv
