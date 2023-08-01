@@ -8,6 +8,7 @@ import requests
 
 from azure.ai.formrecognizer import AnalyzeResult, DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
+from azure.core.polling import LROPoller
 
 from azure_pdf_parser.utils import split_into_pages, merge_responses
 from azure_pdf_parser.base import PDFPage
@@ -71,7 +72,7 @@ class AzureApiWrapper:
         resp: requests.Response = call_api_with_error_handling(
             func=requests.get, retries=3, url=doc_url
         )
-        if resp.status_code is not 200:
+        if resp.status_code != 200:
             resp.raise_for_status()
 
         pages_dict = split_into_pages(document_bytes=BytesIO(resp.content))
@@ -116,12 +117,7 @@ class AzureApiWrapper:
         return page_api_responses, merge_responses(page_api_responses)
 
     @staticmethod
-    def poller_loop(
-        poller: Union[
-            DocumentAnalysisClient.begin_analyze_document_from_url,
-            DocumentAnalysisClient.begin_analyze_document,
-        ]
-    ) -> None:
+    def poller_loop(poller: LROPoller[AnalyzeResult]) -> None:
         """Poll the status of the poller until it is done."""
         counter = 0
         logger.info(f"Poller status {poller.status()}...")
