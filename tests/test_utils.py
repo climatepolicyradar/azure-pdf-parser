@@ -1,10 +1,8 @@
 from azure.ai.formrecognizer import Point, DocumentParagraph, DocumentTable
 
 from cpr_data_access.parser_models import PDFTextBlock
-from azure_wrapper_temp.base import ExperimentalPDFTableBlock
-
-
-from azure_wrapper_temp.convert import (
+from azure_pdf_parser.base import ExperimentalPDFTableBlock
+from azure_pdf_parser.convert import (
     polygon_to_coords,
     azure_paragraph_to_text_block,
     azure_table_to_table_block,

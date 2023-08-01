@@ -4,14 +4,14 @@ from io import BytesIO
 import time
 from typing import Tuple, Sequence, Union, Optional
 import logging
-import requests as requests
+import requests
 
 from azure.ai.formrecognizer import AnalyzeResult, DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
 
-from azure_wrapper_temp.utils import split_into_pages, merge_responses
-from azure_wrapper_temp.base import PDFPage
-from azure_wrapper_temp.utils import call_api_with_error_handling
+from azure_pdf_parser.utils import split_into_pages, merge_responses
+from azure_pdf_parser.base import PDFPage
+from azure_pdf_parser.utils import call_api_with_error_handling
 
 logger = logging.getLogger(__name__)
 

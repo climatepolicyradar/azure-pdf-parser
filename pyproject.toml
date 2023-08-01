@@ -3,12 +3,14 @@ name = "azure-pdf-parser"
 version = "0.1.0"
 description = ""
 authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
+packages = [{include = "azure_pdf_parser", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 azure-ai-formrecognizer = "^3.2.1"
 pypdf2 = "^3.0.1"
 cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git"}
+requests = "^2.31.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -23,6 +25,7 @@ pytest-dotenv = "^0.5.2"
 [tool.poetry.group.dev.dependencies]
 nbmake = "^1.4.1"
 httpx = "^0.23.3"
+mock = "^5.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

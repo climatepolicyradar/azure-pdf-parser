@@ -13,7 +13,7 @@ from cpr_data_access.parser_models import (
     PDFPageMetadata,
     ParserInput,
 )
-from azure_wrapper_temp.base import (
+from azure_pdf_parser.base import (
     ExperimentalTableCell,
     ExperimentalBoundingRegion,
     ExperimentalPDFTableBlock,

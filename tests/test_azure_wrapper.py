@@ -3,9 +3,9 @@ from unittest.mock import patch
 
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_wrapper_temp.base import PDFPage
-from azure_wrapper_temp.azure_wrapper import AzureApiWrapper
-from azure_wrapper_temp.utils import call_api_with_error_handling
+from azure_pdf_parser.base import PDFPage
+from azure_pdf_parser.azure_wrapper import AzureApiWrapper
+from azure_pdf_parser.utils import call_api_with_error_handling
 
 
 def test_call_api_with_error_handling_good_response(

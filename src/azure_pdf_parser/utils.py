@@ -6,7 +6,7 @@ import logging
 from PyPDF2 import PdfReader, PdfWriter
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_wrapper_temp.base import PDFPage
+from azure_pdf_parser.base import PDFPage
 
 logger = logging.getLogger(__name__)
 

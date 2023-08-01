@@ -7,7 +7,7 @@ import json
 
 from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTable
 
-from azure_wrapper_temp.azure_wrapper import AzureApiWrapper
+from azure_pdf_parser.azure_wrapper import AzureApiWrapper
 
 
 def read_local_json_file(file_path: str) -> Union[list[dict[dict]], dict]:
