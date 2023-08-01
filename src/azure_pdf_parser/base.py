@@ -1,8 +1,15 @@
 from typing import Any, Sequence, Optional, List
 
-from azure.ai.formrecognizer import BoundingRegion, Point
-from cpr_data_access.parser_models import PDFData, ParserOutput
-from pydantic import BaseModel
+from azure.ai.formrecognizer import Point
+from cpr_data_access.parser_models import (
+    PDFData,
+    ParserOutput,
+    CONTENT_TYPE_HTML,
+    CONTENT_TYPE_PDF,
+    HTMLData,
+    TextBlock,
+)
+from pydantic import BaseModel, root_validator, AnyHttpUrl
 
 
 class PDFPage(BaseModel):
@@ -30,12 +37,12 @@ class ExperimentalTableCell(BaseModel):
     row_span: int
     column_span: int
     content: str
-    bounding_regions: List[BoundingRegion]
+    bounding_regions: List[ExperimentalBoundingRegion]
 
 
 class ExperimentalPDFTableBlock(BaseModel):
-    """Table block parsed form a PDF document.
-    Stores the text and positional information for a single table block extracted from a document.
+    """Table block parsed form a PDF document. Stores the text and positional
+    information for a single table block extracted from a document.
     """
 
     table_id: str
@@ -54,4 +61,64 @@ class ExperimentalPDFData(PDFData):
 class ExperimentalParserOutput(ParserOutput):
     """Experimental parser output with pdf data containing tables."""
 
-    pdf_data = Optional[ExperimentalPDFData] = None
+    document_id: str
+    document_metadata: dict
+    document_name: str
+    document_description: str
+    document_source_url: Optional[AnyHttpUrl]
+    document_cdn_object: Optional[str]
+    document_content_type: Optional[str]
+    document_md5_sum: Optional[str]
+    document_slug: str
+
+    languages: Optional[Sequence[str]] = None
+    translated: bool = False
+    html_data: Optional[HTMLData] = None
+    pdf_data: Optional[ExperimentalPDFData] = None
+
+    @root_validator
+    def check_html_pdf_metadata(cls, values):
+        """Check that html_data is set if content_type is HTML, or pdf_data is set if
+        content_type is PDF."""
+        if (
+            values["document_content_type"] == CONTENT_TYPE_HTML
+            and values["html_data"] is None
+        ):
+            raise ValueError("html_metadata must be set for HTML documents")
+
+        if (
+            values["document_content_type"] == CONTENT_TYPE_PDF
+            and values["pdf_data"] is None
+        ):
+            raise ValueError("pdf_data must be set for PDF documents")
+
+        if values["document_content_type"] is None and (
+            values["html_data"] is not None or values["pdf_data"] is not None
+        ):
+            raise ValueError(
+                "html_metadata and pdf_metadata must be null for documents with no "
+                "content type. "
+            )
+
+        return values
+
+    @property
+    def text_blocks(self) -> Sequence[TextBlock]:
+        """
+        Return the text blocks in the document. These could differ in format depending
+        on the content type.
+
+        :return: Sequence[TextBlock]
+        """
+
+        if self.document_content_type == CONTENT_TYPE_HTML:
+            return self.html_data.text_blocks  # type: ignore
+        elif self.document_content_type == CONTENT_TYPE_PDF:
+            return self.pdf_data.text_blocks  # type: ignore
+
+    def to_string(self) -> str:  # type: ignore
+        """Return the text blocks in the parser output as a string"""
+
+        return " ".join(
+            [text_block.to_string().strip() for text_block in self.text_blocks]
+        )

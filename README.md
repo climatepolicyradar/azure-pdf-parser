@@ -1,5 +1,7 @@
 # Azure PDF Parser 
 
+[//]: # (TODO: Update the reamde)
+
 ## Context 
 
 This repo provides a python wrapper class for calling text extraction on local or url accessible pdf documents. 

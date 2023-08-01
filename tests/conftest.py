@@ -33,7 +33,7 @@ def one_page_pdf_bytes() -> bytes:
 @pytest.fixture()
 def two_page_pdf_bytes() -> bytes:
     """Content for the sample two page pdf"""
-    return read_pdf_to_bytes("data/sample-two-page.pdf")
+    return read_pdf_to_bytes("./data/sample-two-page.pdf")
 
 
 @pytest.fixture()
