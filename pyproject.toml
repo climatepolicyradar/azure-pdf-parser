@@ -6,8 +6,6 @@ authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-uvicorn = {extras = ["standard"], version = "^0.20.0"}
-fastapi = "^0.92.0"
 
 [tool.poetry.dev-dependencies]
 ruff = "^0.0.247"
