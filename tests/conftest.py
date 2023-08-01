@@ -19,7 +19,7 @@ def read_local_json_file(file_path: str) -> Union[list[dict[dict]], dict]:
 
 def read_pdf_to_bytes(file_path: str) -> bytes:
     """Read a pdf to bytes from a local path."""
-    with open(file_path, 'rb') as file:
+    with open(file_path, "rb") as file:
         pdf_bytes = file.read()
     return pdf_bytes
 
@@ -46,10 +46,14 @@ def one_page_mock_analyse_result() -> AnalyzeResult:
 @pytest.fixture()
 def mock_azure_client(one_page_mock_analyse_result) -> AzureApiWrapper:
     """A mock client to the azure form recognizer api with mocked responses from the
-    api endpoints. """
-    azure_client = AzureApiWrapper('user', 'pass')
-    azure_client.analyze_document_from_url = MagicMock(return_value=one_page_mock_analyse_result)
-    azure_client.analyze_document_from_bytes = MagicMock(return_value=one_page_mock_analyse_result)
+    api endpoints."""
+    azure_client = AzureApiWrapper("user", "pass")
+    azure_client.analyze_document_from_url = MagicMock(
+        return_value=one_page_mock_analyse_result
+    )
+    azure_client.analyze_document_from_bytes = MagicMock(
+        return_value=one_page_mock_analyse_result
+    )
     return azure_client
 
 
@@ -62,7 +66,7 @@ def mock_document_download_response_one_page(one_page_pdf_bytes) -> unittest.moc
 
     # Set the status code and other attributes as needed for your test
     mock_response.status_code = 200
-    mock_response.headers = {'content-type': 'application/pdf'}
+    mock_response.headers = {"content-type": "application/pdf"}
 
     return mock_response
 
@@ -76,7 +80,7 @@ def mock_document_download_response_two_page(two_page_pdf_bytes) -> unittest.moc
 
     # Set the status code and other attributes as needed for your test
     mock_response.status_code = 200
-    mock_response.headers = {'content-type': 'application/pdf'}
+    mock_response.headers = {"content-type": "application/pdf"}
 
     return mock_response
 

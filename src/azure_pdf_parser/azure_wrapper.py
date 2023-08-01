@@ -69,9 +69,7 @@ class AzureApiWrapper:
             extra={"props": {"url": doc_url}},
         )
         resp: requests.Response = call_api_with_error_handling(
-            func=requests.get,
-            retries=3,
-            url=doc_url
+            func=requests.get, retries=3, url=doc_url
         )
         if resp.status_code is not 200:
             resp.raise_for_status()
@@ -99,7 +97,7 @@ class AzureApiWrapper:
         """Analyze a large pdf document (>1500 pages) in the bytes form."""
         logger.info(
             "Analyzing large document from bytes by splitting into individual pages...",
-            extra={"props": {"bytes_size": sys.getsizeof(doc_bytes)}}
+            extra={"props": {"bytes_size": sys.getsizeof(doc_bytes)}},
         )
         pages = split_into_pages(document_bytes=io.BytesIO(doc_bytes))
         page_api_responses = [

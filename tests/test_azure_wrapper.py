@@ -11,7 +11,7 @@ from azure_wrapper_temp.utils import call_api_with_error_handling
 def test_call_api_with_error_handling_good_response(
     mock_azure_client: AzureApiWrapper,
     one_page_pdf_bytes: bytes,
-    one_page_mock_analyse_result: AnalyzeResult
+    one_page_mock_analyse_result: AnalyzeResult,
 ) -> None:
     """Test the retry logic and exception handling to the function when the api
     response is good."""
@@ -20,7 +20,7 @@ def test_call_api_with_error_handling_good_response(
         retries=3,
         func=mock_azure_client.analyze_document_from_url,
         doc_bytes=one_page_pdf_bytes,
-        timeout=None
+        timeout=None,
     )
 
     assert response == one_page_mock_analyse_result
@@ -43,7 +43,7 @@ def test_call_api_with_error_handling_bad_response(
             retries=retries,
             func=mock_azure_client.analyze_document_from_url,
             doc_bytes=one_page_pdf_bytes,
-            timeout=None
+            timeout=None,
         )
     except Exception as e:
         exception_raised = e
@@ -53,8 +53,7 @@ def test_call_api_with_error_handling_bad_response(
 
 
 def test_analyze_document_from_url(
-    mock_azure_client: AzureApiWrapper,
-    one_page_mock_analyse_result: AnalyzeResult
+    mock_azure_client: AzureApiWrapper, one_page_mock_analyse_result: AnalyzeResult
 ) -> None:
     """Test that the document from url method returns the correct response."""
     response = mock_azure_client.analyze_document_from_url(
@@ -66,8 +65,7 @@ def test_analyze_document_from_url(
 
 
 def test_analyze_document_from_bytes(
-    mock_azure_client: AzureApiWrapper,
-    one_page_mock_analyse_result: AnalyzeResult
+    mock_azure_client: AzureApiWrapper, one_page_mock_analyse_result: AnalyzeResult
 ) -> None:
     """Test that the document from bytes method returns the correct response."""
     response = mock_azure_client.analyze_document_from_bytes(
@@ -80,11 +78,11 @@ def test_analyze_document_from_bytes(
 def test_document_split_one_page(
     mock_azure_client: AzureApiWrapper,
     one_page_mock_analyse_result: AnalyzeResult,
-    mock_document_download_response_one_page: unittest.mock.Mock
+    mock_document_download_response_one_page: unittest.mock.Mock,
 ) -> None:
     """Test that processing a document via url with the multi page function returns
     the correct response."""
-    with patch('requests.get') as mock_get:
+    with patch("requests.get") as mock_get:
         mock_get.return_value = mock_document_download_response_one_page
 
         response = mock_azure_client.analyze_large_document_from_url_split(
@@ -106,7 +104,7 @@ def test_document_split_one_page(
 def test_document_split_two_page(
     mock_azure_client: AzureApiWrapper,
     one_page_mock_analyse_result: AnalyzeResult,
-    mock_document_download_response_two_page: unittest.mock.Mock
+    mock_document_download_response_two_page: unittest.mock.Mock,
 ) -> None:
     """Test that processing a document via url with the split page functionality
     returns the correct response.
@@ -114,7 +112,7 @@ def test_document_split_two_page(
     We mock the response from the document download request as well as the response
     from the azure api to extract content from the page.
     """
-    with patch('requests.get') as mock_get:
+    with patch("requests.get") as mock_get:
         mock_get.return_value = mock_document_download_response_two_page
 
         response = mock_azure_client.analyze_large_document_from_url_split(

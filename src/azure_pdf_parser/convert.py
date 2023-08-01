@@ -4,21 +4,21 @@ from azure.ai.formrecognizer import (
     AnalyzeResult,
     DocumentParagraph,
     Point,
-    DocumentTable
+    DocumentTable,
 )
 from cpr_data_access.parser_models import (
     ParserOutput,
     PDFTextBlock,
     PDFData,
     PDFPageMetadata,
-    ParserInput
+    ParserInput,
 )
 from azure_wrapper_temp.base import (
     ExperimentalTableCell,
     ExperimentalBoundingRegion,
     ExperimentalPDFTableBlock,
     ExperimentalPDFData,
-    ExperimentalParserOutput
+    ExperimentalParserOutput,
 )
 
 
@@ -54,7 +54,9 @@ def azure_paragraph_to_text_block(
     )
 
 
-def azure_table_to_table_block(table: DocumentTable, index: int) -> ExperimentalPDFTableBlock:
+def azure_table_to_table_block(
+    table: DocumentTable, index: int
+) -> ExperimentalPDFTableBlock:
     """Convert the tables in an api response to an array of table blocks."""
     return ExperimentalPDFTableBlock(
         table_id=index,
@@ -70,9 +72,7 @@ def azure_table_to_table_block(table: DocumentTable, index: int) -> Experimental
                 content=cell.content,
                 bounding_regions=[
                     ExperimentalBoundingRegion(
-                        page_number=cell.bounding_regions[
-                            0
-                        ].page_number,
+                        page_number=cell.bounding_regions[0].page_number,
                         polygon=cell.bounding_regions[0].polygon,
                     )
                 ],
@@ -86,7 +86,7 @@ def azure_api_response_to_parser_output(
     parser_input: ParserInput,
     md5sum: str,
     api_response: AnalyzeResult,
-    experimental_extract_tables: bool = False
+    experimental_extract_tables: bool = False,
 ) -> Union[ParserOutput, ExperimentalParserOutput]:
     """Convert the API response AnalyzeResult object to a ParserOutput or an
     ExperimentalParserOutput.
@@ -96,7 +96,49 @@ def azure_api_response_to_parser_output(
     """
 
     if experimental_extract_tables:
-        return ExperimentalParserOutput(
+        return (
+            ExperimentalParserOutput(
+                document_id=parser_input.document_id,
+                document_metadata=parser_input.document_metadata,
+                document_name=parser_input.document_name,
+                document_description=parser_input.document_description,
+                document_source_url=parser_input.document_source_url,
+                document_cdn_object=parser_input.document_cdn_object,
+                document_content_type=parser_input.document_cdn_object,
+                document_md5_sum=md5sum,
+                document_slug=parser_input.document_slug,
+                languages=None,
+                translated=False,
+                html_data=None,
+                pdf_data=ExperimentalPDFData(
+                    # FIXME: Check that the units of the dimensions are correct (units are
+                    #  in inches)
+                    page_metadata=[
+                        PDFPageMetadata(
+                            page_number=page.page_number,
+                            dimensions=(page.width, page.height),
+                        )
+                        for page in api_response.pages
+                    ],
+                    md5sum=md5sum,
+                    text_blocks=[
+                        azure_paragraph_to_text_block(
+                            paragraph_id=index, paragraph=paragraph
+                        )
+                        for index, paragraph in enumerate(api_response.paragraphs)
+                    ],
+                    table_blocks=[
+                        azure_table_to_table_block(table=table, index=index)
+                        for index, table in enumerate(api_response.tables)
+                    ],
+                ),
+            )
+            .detect_and_set_languages()
+            .set_document_languages_from_text_blocks()
+        )
+
+    return (
+        ParserOutput(
             document_id=parser_input.document_id,
             document_metadata=parser_input.document_metadata,
             document_name=parser_input.document_name,
@@ -109,7 +151,7 @@ def azure_api_response_to_parser_output(
             languages=None,
             translated=False,
             html_data=None,
-            pdf_data=ExperimentalPDFData(
+            pdf_data=PDFData(
                 # FIXME: Check that the units of the dimensions are correct (units are
                 #  in inches)
                 page_metadata=[
@@ -121,45 +163,13 @@ def azure_api_response_to_parser_output(
                 ],
                 md5sum=md5sum,
                 text_blocks=[
-                    azure_paragraph_to_text_block(paragraph_id=index,
-                                                  paragraph=paragraph)
+                    azure_paragraph_to_text_block(
+                        paragraph_id=index, paragraph=paragraph
+                    )
                     for index, paragraph in enumerate(api_response.paragraphs)
                 ],
-                table_blocks=[
-                    azure_table_to_table_block(table=table, index=index)
-                    for index, table in enumerate(api_response.tables)
-                ]
             ),
-        ).detect_and_set_languages().set_document_languages_from_text_blocks()
-
-    return ParserOutput(
-        document_id=parser_input.document_id,
-        document_metadata=parser_input.document_metadata,
-        document_name=parser_input.document_name,
-        document_description=parser_input.document_description,
-        document_source_url=parser_input.document_source_url,
-        document_cdn_object=parser_input.document_cdn_object,
-        document_content_type=parser_input.document_cdn_object,
-        document_md5_sum=md5sum,
-        document_slug=parser_input.document_slug,
-        languages=None,
-        translated=False,
-        html_data=None,
-        pdf_data=PDFData(
-            # FIXME: Check that the units of the dimensions are correct (units are
-            #  in inches)
-            page_metadata=[
-                PDFPageMetadata(
-                    page_number=page.page_number,
-                    dimensions=(page.width, page.height),
-                )
-                for page in api_response.pages
-            ],
-            md5sum=md5sum,
-            text_blocks=[
-                azure_paragraph_to_text_block(paragraph_id=index,
-                                              paragraph=paragraph)
-                for index, paragraph in enumerate(api_response.paragraphs)
-            ]
-        ),
-    ).detect_and_set_languages().set_document_languages_from_text_blocks()
+        )
+        .detect_and_set_languages()
+        .set_document_languages_from_text_blocks()
+    )

@@ -21,6 +21,7 @@ class ExperimentalBoundingRegion(BaseModel):
 
 class ExperimentalTableCell(BaseModel):
     """Cell of a table."""
+
     # TODO create cell type enum
     # TODO potentially enforce bounding regions to be one region per page
     cell_type: str
@@ -45,11 +46,12 @@ class ExperimentalPDFTableBlock(BaseModel):
 
 class ExperimentalPDFData(PDFData):
     """Experimental addition to the PDFData object that also optionally contains table
-    blocks. """
+    blocks."""
 
     table_blocks: Optional[Sequence[ExperimentalPDFTableBlock]] = None
 
 
 class ExperimentalParserOutput(ParserOutput):
     """Experimental parser output with pdf data containing tables."""
+
     pdf_data = Optional[ExperimentalPDFData] = None

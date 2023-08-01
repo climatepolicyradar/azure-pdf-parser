@@ -7,15 +7,17 @@ from azure_wrapper_temp.base import ExperimentalPDFTableBlock
 from azure_wrapper_temp.convert import (
     polygon_to_coords,
     azure_paragraph_to_text_block,
-    azure_table_to_table_block
+    azure_table_to_table_block,
 )
 
 
 def test_valid_polygon_to_coords() -> None:
     """Test that we can convert a sequence of points into a list of coordinates."""
     valid_points = [
-        Point(x=0.0, y=1.0), Point(x=1.0, y=1.0),
-        Point(x=1.0, y=0.0), Point(x=0.0, y=0.0)
+        Point(x=0.0, y=1.0),
+        Point(x=1.0, y=1.0),
+        Point(x=1.0, y=0.0),
+        Point(x=0.0, y=0.0),
     ]
 
     coords = polygon_to_coords(valid_points)
@@ -29,7 +31,13 @@ def test_valid_polygon_to_coords() -> None:
 def test_invalid_polygon_to_coords() -> None:
     """Test that we throw an exception should the polygon not be of the correct form."""
 
-    invalid_points = [Point(x=0.0, y=1.0,), Point(x=1.0, y=1.0)]
+    invalid_points = [
+        Point(
+            x=0.0,
+            y=1.0,
+        ),
+        Point(x=1.0, y=1.0),
+    ]
 
     coords = None
     error = None
@@ -44,7 +52,9 @@ def test_invalid_polygon_to_coords() -> None:
 
 def test_convert_to_text_block(document_paragraph: DocumentParagraph) -> None:
     """Test that we can convert an Azure document paragraph to a text block."""
-    text_block = azure_paragraph_to_text_block(paragraph_id=1, paragraph=document_paragraph)
+    text_block = azure_paragraph_to_text_block(
+        paragraph_id=1, paragraph=document_paragraph
+    )
 
     # Pydantic will validate the types so not alot more validation needed
     assert isinstance(text_block, PDFTextBlock)
