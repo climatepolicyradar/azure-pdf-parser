@@ -3,7 +3,6 @@ from typing import Any, Sequence, Optional, List
 from azure.ai.formrecognizer import Point
 from cpr_data_access.parser_models import (
     PDFData,
-    ParserOutput,
     CONTENT_TYPE_HTML,
     CONTENT_TYPE_PDF,
     HTMLData,
@@ -65,7 +64,7 @@ class ExperimentalPDFData(PDFData):
     table_blocks: Optional[Sequence[ExperimentalPDFTableBlock]] = None
 
 
-class ExperimentalParserOutput(ParserOutput):
+class ExperimentalParserOutput(BaseModel):
     """Experimental parser output with pdf data containing tables."""
 
     document_id: str
@@ -137,7 +136,7 @@ class ExperimentalParserOutput(ParserOutput):
             [text_block.to_string().strip() for text_block in self.text_blocks]
         )
 
-    def detect_and_set_languages(self) -> "ParserOutput":
+    def detect_and_set_languages(self) -> "ExperimentalParserOutput":
         """
         Detect language of the text and set the language attribute.
 

@@ -108,18 +108,21 @@ def azure_table_to_table_block(
                     )
                 ],
             )
+            # TODO tidy this up and think about it properly
             for cell in table.cells
-            if cell.bounding_regions is not None
-            and cell.kind is not None
-            and cell.row_span is not None
-            and cell.column_span is not None
+            if (
+                cell.bounding_regions is not None
+                and cell.kind is not None
+                and cell.row_span is not None
+                and cell.column_span is not None
+            )
         ],
     )
 
 
 def extract_azure_api_response_tables(
     api_response: AnalyzeResult,
-) -> Sequence[ExperimentalPDFTableBlock]:
+) -> Union[Sequence[ExperimentalPDFTableBlock], None]:
     """
     Extract tables from an azure api response.
 
@@ -133,7 +136,7 @@ def extract_azure_api_response_tables(
                     azure_table_to_table_block(table=table, index=index)
                 )
 
-    return table_blocks
+    return table_blocks if table_blocks is not [] else None
 
 
 def azure_api_response_to_parser_output(
