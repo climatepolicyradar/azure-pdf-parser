@@ -41,8 +41,11 @@ class ExperimentalTableCell(BaseModel):
 
 
 class ExperimentalPDFTableBlock(BaseModel):
-    """Table block parsed form a PDF document. Stores the text and positional
-    information for a single table block extracted from a document.
+    """
+    Table block parsed form a PDF document.
+
+    Stores the text and positional information for a single table block extracted from
+    a document.
     """
 
     table_id: str
@@ -52,8 +55,7 @@ class ExperimentalPDFTableBlock(BaseModel):
 
 
 class ExperimentalPDFData(PDFData):
-    """Experimental addition to the PDFData object that also optionally contains table
-    blocks."""
+    """PDFData object that also optionally contains table blocks."""
 
     table_blocks: Optional[Sequence[ExperimentalPDFTableBlock]] = None
 
@@ -78,8 +80,12 @@ class ExperimentalParserOutput(ParserOutput):
 
     @root_validator
     def check_html_pdf_metadata(cls, values):
-        """Check that html_data is set if content_type is HTML, or pdf_data is set if
-        content_type is PDF."""
+        """
+        Validation for the data that is set.
+
+        Check that html_data is set if content_type is HTML, or pdf_data is set if
+        content_type is PDF.
+        """
         if (
             values["document_content_type"] == CONTENT_TYPE_HTML
             and values["html_data"] is None
@@ -105,16 +111,19 @@ class ExperimentalParserOutput(ParserOutput):
     @property
     def text_blocks(self) -> Sequence[TextBlock]:
         """
-        Return the text blocks in the document. These could differ in format depending
-        on the content type.
+        Return the text blocks in the document.
+
+        These could differ in format depending on the content type.
 
         :return: Sequence[TextBlock]
         """
-
         if self.document_content_type == CONTENT_TYPE_HTML:
-            return self.html_data.text_blocks  # type: ignore
+            html_data: HTMLData = self.html_data
+            return html_data.text_blocks
         elif self.document_content_type == CONTENT_TYPE_PDF:
-            return self.pdf_data.text_blocks  # type: ignore
+            pdf_data: PDFData = self.pdf_data
+            return pdf_data.text_blocks
+        return []
 
     def to_string(self) -> str:  # type: ignore
         """Return the text blocks in the parser output as a string"""
