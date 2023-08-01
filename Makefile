@@ -1,8 +1,9 @@
 .PHONY: test
 
 install:
-	poetry shell
-	poetry install
+	poetry config virtualenvs.create false
+	poetry export --with dev > requirements.txt
+	pip3 install --no-cache -r requirements.txt
 
 test:
-	poetry run python -m pytest -vvv
+	python -m pytest -vvv

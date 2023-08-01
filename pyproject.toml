@@ -11,6 +11,7 @@ azure-ai-formrecognizer = "^3.2.1"
 pypdf2 = "^3.0.1"
 cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git"}
 requests = "^2.31.0"
+langdetect = "^1.0.9"
 
 
 [tool.poetry.dev-dependencies]

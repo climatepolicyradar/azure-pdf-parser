@@ -22,13 +22,13 @@ from azure_pdf_parser.base import (
 )
 
 
-def polygon_to_coords(polygon: Sequence[Point]) -> list[tuple[float, float]]:
-    """Converts a polygon (four x,y co-ordinates) to a list of co-ordinates.
+def polygon_to_co_ordinates(polygon: Sequence[Point]) -> list[tuple[float, float]]:
+    """
+    Converts a polygon (four x,y co-ordinates) to a list of co-ordinates.
 
-    The origin of the co-ordinate system is the top left corner of the page.
-
-    The points array is ordered as follows:
-    - top left, top  right, bottom right, bottom left
+    The origin of the co-ordinate system is the top left corner of the page. The
+    points array is ordered as follows: - top left, top  right, bottom right,
+    bottom left.
     """
 
     if len(polygon) != 4:
@@ -40,18 +40,49 @@ def polygon_to_coords(polygon: Sequence[Point]) -> list[tuple[float, float]]:
 def azure_paragraph_to_text_block(
     paragraph_id: int, paragraph: DocumentParagraph
 ) -> PDFTextBlock:
-    """Convert a DocumentParagraph to a PDFTextBlock."""
+    """
+    Convert a DocumentParagraph to a PDFTextBlock.
+
+    Paragraph bounding region is an optional field in the azure object model. And
+    thus, we must handle this scenario. For our purposes it is a requirement to have
+    the coordinates of a text block, and thus we do not return a text block in this
+    instance.
+
+    If paragraph role is not present we default to text.
+    We auto-assign a type-confidence of one as azure does not provide confidence scores.
+    """
+    if paragraph.bounding_regions is None:
+        raise ValueError("Paragraph must have bounding regions to create text block.")
+
     return PDFTextBlock(
-        coords=polygon_to_coords(paragraph.bounding_regions[0].polygon),
-        # FIXME: The paragraph could be split across multiple pages, page_number only
-        #  allows int
+        coords=polygon_to_co_ordinates(paragraph.bounding_regions[0].polygon),
         page_number=paragraph.bounding_regions[0].page_number,
         text=[paragraph.content],
         text_block_id=str(paragraph_id),
         language=None,
-        type=paragraph.role or "Ambiguous",
+        type=paragraph.role or "Text",
         type_confidence=1.0,
     )
+
+
+def extract_azure_api_response_paragraphs(
+    api_response: AnalyzeResult,
+) -> Sequence[PDFTextBlock]:
+    """
+    Extract paragraphs from an azure api response.
+
+    The paragraphs must contain bounding regions.
+    """
+    text_blocks = []
+    if api_response.paragraphs is not None:
+        for index, paragraph in enumerate(api_response.paragraphs):
+            if paragraph is not None and paragraph.bounding_regions is not None:
+                text_blocks.append(
+                    azure_paragraph_to_text_block(
+                        paragraph_id=index, paragraph=paragraph
+                    )
+                )
+    return text_blocks
 
 
 def azure_table_to_table_block(
@@ -59,7 +90,7 @@ def azure_table_to_table_block(
 ) -> ExperimentalPDFTableBlock:
     """Convert the tables in an api response to an array of table blocks."""
     return ExperimentalPDFTableBlock(
-        table_id=index,
+        table_id=str(index),
         row_count=table.row_count,
         column_count=table.column_count,
         cells=[
@@ -78,8 +109,31 @@ def azure_table_to_table_block(
                 ],
             )
             for cell in table.cells
+            if cell.bounding_regions is not None
+            and cell.kind is not None
+            and cell.row_span is not None
+            and cell.column_span is not None
         ],
     )
+
+
+def extract_azure_api_response_tables(
+    api_response: AnalyzeResult,
+) -> Sequence[ExperimentalPDFTableBlock]:
+    """
+    Extract tables from an azure api response.
+
+    The table cells must contain bounding regions.
+    """
+    table_blocks = []
+    if api_response.tables is not None:
+        for index, table in enumerate(api_response.tables):
+            if table is not None and all(cell is not None for cell in table.cells):
+                table_blocks.append(
+                    azure_table_to_table_block(table=table, index=index)
+                )
+
+    return table_blocks
 
 
 def azure_api_response_to_parser_output(
@@ -88,14 +142,27 @@ def azure_api_response_to_parser_output(
     api_response: AnalyzeResult,
     experimental_extract_tables: bool = False,
 ) -> Union[ParserOutput, ExperimentalParserOutput]:
-    """Convert the API response AnalyzeResult object to a ParserOutput or an
-    ExperimentalParserOutput.
-
-    The experimental parser output configuration will also extract tables from the api
-    response.
     """
+    Convert the API response AnalyzeResult object to a ParserOutput.
+
+    Also, optionally convert to an ExperimentalParserOutput. The experimental parser
+    output configuration will also extract tables from the api response.
+    """
+    # FIXME: Check that the units of the dimensions are correct (units are in inches)
+    #  in page metadata
+
+    text_blocks = extract_azure_api_response_paragraphs(api_response)
+    page_metadata = [
+        PDFPageMetadata(
+            page_number=page.page_number,
+            dimensions=(page.width, page.height),
+        )
+        for page in api_response.pages
+    ]
 
     if experimental_extract_tables:
+        table_blocks = extract_azure_api_response_tables(api_response=api_response)
+
         return (
             ExperimentalParserOutput(
                 document_id=parser_input.document_id,
@@ -111,26 +178,10 @@ def azure_api_response_to_parser_output(
                 translated=False,
                 html_data=None,
                 pdf_data=ExperimentalPDFData(
-                    # FIXME: Check that the units of the dimensions are correct (units are
-                    #  in inches)
-                    page_metadata=[
-                        PDFPageMetadata(
-                            page_number=page.page_number,
-                            dimensions=(page.width, page.height),
-                        )
-                        for page in api_response.pages
-                    ],
+                    page_metadata=page_metadata,
                     md5sum=md5sum,
-                    text_blocks=[
-                        azure_paragraph_to_text_block(
-                            paragraph_id=index, paragraph=paragraph
-                        )
-                        for index, paragraph in enumerate(api_response.paragraphs)
-                    ],
-                    table_blocks=[
-                        azure_table_to_table_block(table=table, index=index)
-                        for index, table in enumerate(api_response.tables)
-                    ],
+                    text_blocks=text_blocks,
+                    table_blocks=table_blocks,
                 ),
             )
             .detect_and_set_languages()
@@ -152,22 +203,9 @@ def azure_api_response_to_parser_output(
             translated=False,
             html_data=None,
             pdf_data=PDFData(
-                # FIXME: Check that the units of the dimensions are correct (units are
-                #  in inches)
-                page_metadata=[
-                    PDFPageMetadata(
-                        page_number=page.page_number,
-                        dimensions=(page.width, page.height),
-                    )
-                    for page in api_response.pages
-                ],
+                page_metadata=page_metadata,
                 md5sum=md5sum,
-                text_blocks=[
-                    azure_paragraph_to_text_block(
-                        paragraph_id=index, paragraph=paragraph
-                    )
-                    for index, paragraph in enumerate(api_response.paragraphs)
-                ],
+                text_blocks=text_blocks,
             ),
         )
         .detect_and_set_languages()

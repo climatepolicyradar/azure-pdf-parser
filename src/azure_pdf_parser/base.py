@@ -10,6 +10,11 @@ from cpr_data_access.parser_models import (
     TextBlock,
 )
 from pydantic import BaseModel, root_validator, AnyHttpUrl
+from collections import Counter
+from langdetect import DetectorFactory, detect
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PDFPage(BaseModel):
@@ -23,7 +28,7 @@ class ExperimentalBoundingRegion(BaseModel):
     """Region of a cell in a table."""
 
     page_number: int
-    polygon: List[Point]
+    polygon: Sequence[Point]
 
 
 class ExperimentalTableCell(BaseModel):
@@ -131,3 +136,61 @@ class ExperimentalParserOutput(ParserOutput):
         return " ".join(
             [text_block.to_string().strip() for text_block in self.text_blocks]
         )
+
+    def detect_and_set_languages(self) -> "ParserOutput":
+        """
+        Detect language of the text and set the language attribute.
+
+        Return an instance of ParserOutput with the language attribute set. Assumes
+        that a document only has one language.
+        """
+
+        # FIXME: We can remove this now as this api doesn't support language detection
+        if self.document_content_type != CONTENT_TYPE_HTML:
+            logger.warning(
+                "Language detection should not be required for non-HTML documents, "
+                "but it has been run on one. This will overwrite any document "
+                "languages detected via other means, e.g. OCR. "
+            )
+
+        # language detection is not deterministic, so we need to set a seed
+        DetectorFactory.seed = 0
+
+        if len(self.text_blocks) > 0:
+            detected_language = detect(self.to_string())
+            self.languages = [detected_language]
+            for text_block in self.text_blocks:
+                text_block.language = detected_language
+
+        return self
+
+    def set_document_languages_from_text_blocks(
+        self, min_language_proportion: float = 0.4
+    ):
+        """
+        Store the document languages attribute as part of the object.
+
+        This is done by getting all  languages with proportion above
+        `min_language_proportion`. :attribute min_language_proportion: Minimum
+        proportion of text blocks in a language for it to be considered a language of
+        the document.
+        """
+
+        all_text_block_languages = [
+            text_block.language for text_block in self.text_blocks
+        ]
+
+        if all([lang is None for lang in all_text_block_languages]):
+            self.languages = None
+
+        else:
+            lang_counter = Counter(
+                [lang for lang in all_text_block_languages if lang is not None]
+            )
+            self.languages = [
+                lang
+                for lang, count in lang_counter.items()
+                if count / len(all_text_block_languages) > min_language_proportion
+            ]
+
+        return self

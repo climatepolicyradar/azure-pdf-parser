@@ -3,7 +3,7 @@ from azure.ai.formrecognizer import Point, DocumentParagraph, DocumentTable
 from cpr_data_access.parser_models import PDFTextBlock
 from azure_pdf_parser.base import ExperimentalPDFTableBlock
 from azure_pdf_parser.convert import (
-    polygon_to_coords,
+    polygon_to_co_ordinates,
     azure_paragraph_to_text_block,
     azure_table_to_table_block,
 )
@@ -18,7 +18,7 @@ def test_valid_polygon_to_coords() -> None:
         Point(x=0.0, y=0.0),
     ]
 
-    coords = polygon_to_coords(valid_points)
+    coords = polygon_to_co_ordinates(valid_points)
     assert isinstance(coords, list)
     for coord in coords:
         assert isinstance(coord, tuple)
@@ -40,7 +40,7 @@ def test_invalid_polygon_to_coords() -> None:
     coords = None
     error = None
     try:
-        coords = polygon_to_coords(invalid_points)
+        coords = polygon_to_co_ordinates(invalid_points)
     except ValueError as e:
         error = e
 
@@ -60,8 +60,7 @@ def test_convert_to_text_block(document_paragraph: DocumentParagraph) -> None:
 
 
 def test_convert_to_table_block(document_table: DocumentTable) -> None:
-    """Test that we can successfully assign data from a document table to a pdf table
-    block."""
+    """Test that we can assign data from a document table to a pdf table block."""
     index = 123
     table_block = azure_table_to_table_block(document_table, index=index)
 
