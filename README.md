@@ -1,6 +1,7 @@
 # Azure PDF Parser 
 
 [//]: # (TODO: Update the reamde)
+[//]: # (TODO: Update py2pdf package - DeprecationWarning: PyPDF2 is deprecated. Please move to the pypdf library instead.)
 
 ## Context 
 

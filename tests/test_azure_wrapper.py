@@ -85,7 +85,7 @@ def test_document_split_one_page(
     with patch("requests.get") as mock_get:
         mock_get.return_value = mock_document_download_response_one_page
 
-        response = mock_azure_client.analyze_large_document_from_url_split(
+        response = mock_azure_client.analyze_large_document_from_url(
             "https://example.com/test.pdf"
         )
 
@@ -115,7 +115,7 @@ def test_document_split_two_page(
     with patch("requests.get") as mock_get:
         mock_get.return_value = mock_document_download_response_two_page
 
-        response = mock_azure_client.analyze_large_document_from_url_split(
+        response = mock_azure_client.analyze_large_document_from_url(
             "https://example.com/test.pdf"
         )
 
