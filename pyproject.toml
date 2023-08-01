@@ -6,6 +6,10 @@ authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+azure-ai-formrecognizer = "^3.2.1"
+pypdf2 = "^3.0.1"
+cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git"}
+
 
 [tool.poetry.dev-dependencies]
 ruff = "^0.0.247"
