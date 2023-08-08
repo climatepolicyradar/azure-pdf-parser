@@ -65,7 +65,9 @@ def mock_azure_client(one_page_analyse_result) -> AzureApiWrapper:
 
 
 @pytest.fixture
-def mock_document_download_response_one_page(one_page_pdf_bytes) -> unittest.mock.Mock:
+def mock_document_download_response_one_page(
+        one_page_pdf_bytes: bytes
+) -> unittest.mock.Mock:
     """Create a mock response to a download request for a pdf document with one page."""
     # Create a mock Response object
     mock_response = unittest.mock.Mock()
