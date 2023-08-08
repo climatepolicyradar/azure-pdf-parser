@@ -12,7 +12,7 @@ from azure_pdf_parser.azure_wrapper import AzureApiWrapper
 from azure_pdf_parser.base import PDFPage
 
 
-def read_local_json_file(file_path: str) -> Union[list[dict[dict]], dict]:
+def read_local_json_file(file_path: str) -> Union[list[dict], dict]:
     """Read a local json file and return the data."""
     with open(file_path) as json_file:
         data = json.load(json_file)
@@ -29,19 +29,21 @@ def read_pdf_to_bytes(file_path: str) -> bytes:
 @pytest.fixture()
 def one_page_pdf_bytes() -> bytes:
     """Content for the sample one page pdf"""
-    return read_pdf_to_bytes("tests/data/sample-one-page.pdf")
+    return read_pdf_to_bytes("./src/azure_pdf_parser/tests/data/sample-one-page.pdf")
 
 
 @pytest.fixture()
 def two_page_pdf_bytes() -> bytes:
     """Content for the sample two page pdf"""
-    return read_pdf_to_bytes("tests/data/sample-two-page.pdf")
+    return read_pdf_to_bytes("./src/azure_pdf_parser/tests/data/sample-two-page.pdf")
 
 
 @pytest.fixture()
 def one_page_analyse_result() -> AnalyzeResult:
     """Mock response for the analyse document from url endpoint."""
-    data = read_local_json_file("tests/data/sample-one-page.json")
+    data = read_local_json_file(
+        "./src/azure_pdf_parser/tests/data/sample-one-page.json"
+    )
     return AnalyzeResult.from_dict(data[0])
 
 
@@ -93,14 +95,16 @@ def mock_document_download_response_two_page(two_page_pdf_bytes) -> unittest.moc
 @pytest.fixture
 def document_paragraph() -> DocumentParagraph:
     """Construct a document paragraph object."""
-    data = read_local_json_file("tests/data/document-paragraph.json")
+    data = read_local_json_file(
+        "./src/azure_pdf_parser/tests/data/document-paragraph.json"
+    )
     return DocumentParagraph.from_dict(data)
 
 
 @pytest.fixture
 def document_table() -> DocumentTable:
     """Construct a document table object."""
-    data = read_local_json_file("tests/data/document-table.json")
+    data = read_local_json_file("./src/azure_pdf_parser/tests/data/document-table.json")
     return DocumentTable.from_dict(data)
 
 
