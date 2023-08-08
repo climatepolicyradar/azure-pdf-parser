@@ -14,7 +14,7 @@ from cpr_data_access.parser_models import (
     ParserInput,
     CONTENT_TYPE_PDF,
 )
-from cpr_pdf_parser.base import (
+from cpr_pdf_parser.experimental_base import (
     ExperimentalTableCell,
     ExperimentalBoundingRegion,
     ExperimentalPDFTableBlock,

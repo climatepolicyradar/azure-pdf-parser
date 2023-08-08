@@ -8,7 +8,7 @@ from azure.ai.formrecognizer import (
 )
 from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
 
-from cpr_pdf_parser.base import (
+from cpr_pdf_parser.experimental_base import (
     ExperimentalPDFTableBlock,
     ExperimentalParserOutput,
     ExperimentalTableCell,

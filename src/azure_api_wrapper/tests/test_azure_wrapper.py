@@ -1,17 +1,16 @@
-import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_api_wrapper.base import PDFPage
 from azure_api_wrapper.azure_wrapper import AzureApiWrapper
+from azure_api_wrapper.base import PDFPage
 from azure_api_wrapper.utils import call_api_with_error_handling
 
 
 # TODO test non english document
 
 
-def test_call_api_with_error_handling_good_response(
+def test_passing_class_method_into_api_function_good_response(
     mock_azure_client: AzureApiWrapper,
     one_page_pdf_bytes: bytes,
     one_page_analyse_result: AnalyzeResult,
@@ -28,7 +27,7 @@ def test_call_api_with_error_handling_good_response(
     assert mock_azure_client.analyze_document_from_url.call_count == 1
 
 
-def test_call_api_with_error_handling_bad_response(
+def test_passing_class_method_into_api_function_bad_response(
     mock_azure_client: AzureApiWrapper,
     one_page_pdf_bytes: bytes,
 ) -> None:
@@ -37,6 +36,7 @@ def test_call_api_with_error_handling_bad_response(
     exception_to_raise = Exception("Simulated API error")
     mock_azure_client.analyze_document_from_url.side_effect = exception_to_raise
 
+    # FIXME: Use the better test method
     exception_raised = None
     try:
         call_api_with_error_handling(
@@ -78,7 +78,7 @@ def test_analyze_document_from_bytes(
 def test_document_split_one_page(
     mock_azure_client: AzureApiWrapper,
     one_page_analyse_result: AnalyzeResult,
-    mock_document_download_response_one_page: unittest.mock.Mock,
+    mock_document_download_response_one_page: Mock,
 ) -> None:
     """Test the processing of a document via url with the multi page function."""
     with patch("requests.get") as mock_get:
@@ -102,7 +102,7 @@ def test_document_split_one_page(
 def test_document_split_two_page(
     mock_azure_client: AzureApiWrapper,
     one_page_analyse_result: AnalyzeResult,
-    mock_document_download_response_two_page: unittest.mock.Mock,
+    mock_document_download_response_two_page: Mock,
 ) -> None:
     """
     Test the processing of a document via url with the split page functionality.
