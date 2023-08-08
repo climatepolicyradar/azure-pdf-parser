@@ -10,9 +10,9 @@ from azure.ai.formrecognizer import AnalyzeResult, DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
 from azure.core.polling import LROPoller
 
-from azure_pdf_parser.utils import split_into_pages, merge_responses
-from azure_pdf_parser.base import PDFPage
-from azure_pdf_parser.utils import call_api_with_error_handling
+from azure_api_wrapper.utils import split_into_pages, merge_responses
+from azure_api_wrapper.base import PDFPage
+from azure_api_wrapper.utils import call_api_with_error_handling
 
 logger = logging.getLogger(__name__)
 

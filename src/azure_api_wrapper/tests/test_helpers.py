@@ -1,4 +1,4 @@
-from azure_pdf_parser.tests.helpers import is_valid_md5, is_valid_pdf
+from azure_api_wrapper.tests.helpers import is_valid_md5, is_valid_pdf
 
 
 def test_is_valid_md5() -> None:

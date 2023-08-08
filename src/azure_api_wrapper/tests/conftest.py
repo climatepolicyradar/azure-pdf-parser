@@ -8,8 +8,8 @@ import json
 from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTable
 from cpr_data_access.parser_models import ParserInput
 
-from azure_pdf_parser.azure_wrapper import AzureApiWrapper
-from azure_pdf_parser.base import PDFPage
+from azure_api_wrapper.azure_wrapper import AzureApiWrapper
+from azure_api_wrapper.base import PDFPage
 
 
 def read_local_json_file(file_path: str) -> Union[list[dict], dict]:
@@ -29,20 +29,20 @@ def read_pdf_to_bytes(file_path: str) -> bytes:
 @pytest.fixture()
 def one_page_pdf_bytes() -> bytes:
     """Content for the sample one page pdf"""
-    return read_pdf_to_bytes("./src/azure_pdf_parser/tests/data/sample-one-page.pdf")
+    return read_pdf_to_bytes("./src/azure_api_wrapper/tests/data/sample-one-page.pdf")
 
 
 @pytest.fixture()
 def two_page_pdf_bytes() -> bytes:
     """Content for the sample two page pdf"""
-    return read_pdf_to_bytes("./src/azure_pdf_parser/tests/data/sample-two-page.pdf")
+    return read_pdf_to_bytes("./src/azure_api_wrapper/tests/data/sample-two-page.pdf")
 
 
 @pytest.fixture()
 def one_page_analyse_result() -> AnalyzeResult:
     """Mock response for the analyse document from url endpoint."""
     data = read_local_json_file(
-        "./src/azure_pdf_parser/tests/data/sample-one-page.json"
+        "./src/azure_api_wrapper/tests/data/sample-one-page.json"
     )
     return AnalyzeResult.from_dict(data[0])
 
@@ -66,7 +66,7 @@ def mock_azure_client(one_page_analyse_result) -> AzureApiWrapper:
 
 @pytest.fixture
 def mock_document_download_response_one_page(
-        one_page_pdf_bytes: bytes
+    one_page_pdf_bytes: bytes,
 ) -> unittest.mock.Mock:
     """Create a mock response to a download request for a pdf document with one page."""
     # Create a mock Response object
@@ -98,7 +98,7 @@ def mock_document_download_response_two_page(two_page_pdf_bytes) -> unittest.moc
 def document_paragraph() -> DocumentParagraph:
     """Construct a document paragraph object."""
     data = read_local_json_file(
-        "./src/azure_pdf_parser/tests/data/document-paragraph.json"
+        "./src/azure_api_wrapper/tests/data/document-paragraph.json"
     )
     return DocumentParagraph.from_dict(data)
 
@@ -106,7 +106,9 @@ def document_paragraph() -> DocumentParagraph:
 @pytest.fixture
 def document_table() -> DocumentTable:
     """Construct a document table object."""
-    data = read_local_json_file("./src/azure_pdf_parser/tests/data/document-table.json")
+    data = read_local_json_file(
+        "./src/azure_api_wrapper/tests/data/document-table.json"
+    )
     return DocumentTable.from_dict(data)
 
 

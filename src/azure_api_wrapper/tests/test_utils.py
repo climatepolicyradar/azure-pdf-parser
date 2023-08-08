@@ -4,8 +4,8 @@ from unittest import mock
 
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_pdf_parser.base import PDFPage
-from azure_pdf_parser.utils import (
+from azure_api_wrapper.base import PDFPage
+from azure_api_wrapper.utils import (
     calculate_md5_sum,
     propagate_page_number,
     merge_responses,
@@ -15,7 +15,7 @@ from azure_pdf_parser.utils import (
 from helpers import is_valid_md5, is_valid_pdf
 
 
-@mock.patch("azure_pdf_parser.utils.logger")
+@mock.patch("azure_api_wrapper.utils.logger")
 def test_call_api_with_error_handling_good_response(mock_logger) -> None:
     """Test that the API function is called correctly."""
     mock_api_function = mock.Mock(return_value="response")
@@ -29,7 +29,7 @@ def test_call_api_with_error_handling_good_response(mock_logger) -> None:
     )
 
 
-@mock.patch("azure_pdf_parser.utils.logger")
+@mock.patch("azure_api_wrapper.utils.logger")
 def test_call_api_with_error_handling_bad_response(mock_logger) -> None:
     """Test that the API function is called correctly."""
     retries = 3

@@ -8,12 +8,12 @@ from azure.ai.formrecognizer import (
 )
 from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
 
-from azure_pdf_parser.base import (
+from azure_api_wrapper.base import (
     ExperimentalPDFTableBlock,
     ExperimentalParserOutput,
     ExperimentalTableCell,
 )
-from azure_pdf_parser.convert import (
+from azure_api_wrapper.convert import (
     polygon_to_co_ordinates,
     azure_paragraph_to_text_block,
     azure_table_to_table_block,

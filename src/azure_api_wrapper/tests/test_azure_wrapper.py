@@ -3,9 +3,9 @@ from unittest.mock import patch
 
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_pdf_parser.base import PDFPage
-from azure_pdf_parser.azure_wrapper import AzureApiWrapper
-from azure_pdf_parser.utils import call_api_with_error_handling
+from azure_api_wrapper.base import PDFPage
+from azure_api_wrapper.azure_wrapper import AzureApiWrapper
+from azure_api_wrapper.utils import call_api_with_error_handling
 
 
 # TODO test non english document
