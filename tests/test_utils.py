@@ -1,11 +1,13 @@
 from azure.ai.formrecognizer import AnalyzeResult
+import io
 
 from azure_pdf_parser.utils import (
     calculate_md5_sum,
-    is_valid_md5,
     propagate_page_number,
     merge_responses,
+    split_into_pages,
 )
+from helpers import is_valid_md5, is_valid_pdf
 from azure_pdf_parser.base import PDFPage
 
 
@@ -69,14 +71,19 @@ def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
     assert len(merged_api_response.tables) == table_number_initial
 
 
-def test_split_into_pages():
-    pass
+def test_split_into_pages(one_page_pdf_bytes: bytes, two_page_pdf_bytes: bytes) -> None:
+    """Test that the PDF is split into pages correctly."""
+    pages: dict[int, bytes] = split_into_pages(io.BytesIO(one_page_pdf_bytes))
+    assert len(pages) == 1
+    assert pages.keys() == {1}
+    for page in pages.values():
+        assert is_valid_pdf(page)
 
-
-def test_is_valid_md5() -> None:
-    """Test that the function returns True for valid MD5 sums."""
-    assert not is_valid_md5("Invalid MD5 sum")
-    assert is_valid_md5("d41d8cd98f00b204e9800998ecf8427e")
+    pages = split_into_pages(io.BytesIO(two_page_pdf_bytes))
+    assert len(pages) == 2
+    assert pages.keys() == {1, 2}
+    for page in pages.values():
+        assert is_valid_pdf(page)
 
 
 def test_calculate_md5_sum(one_page_pdf_bytes: bytes) -> None:

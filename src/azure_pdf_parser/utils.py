@@ -2,7 +2,6 @@ import hashlib
 import io
 from io import BytesIO
 from typing import Sequence, Any
-import re
 import logging
 
 from pypdf import PdfReader, PdfWriter
@@ -102,13 +101,3 @@ def split_into_pages(document_bytes: BytesIO) -> dict[int, bytes]:
 def calculate_md5_sum(doc_bytes: bytes) -> str:
     """Calculate the md5 sum of the document bytes."""
     return hashlib.md5(doc_bytes).hexdigest()
-
-
-def is_valid_md5(input_string):
-    """
-    Check if the input string is a valid md5 hash.
-
-    MD5 hashes are 32-character hexadecimal strings
-    """
-    md5_pattern = re.compile(r"^[a-fA-F0-9]{32}$")
-    return bool(md5_pattern.match(input_string))
