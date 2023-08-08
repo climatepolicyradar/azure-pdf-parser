@@ -9,7 +9,7 @@ from azure_pdf_parser.convert import (
 )
 
 
-def test_valid_polygon_to_coords() -> None:
+def test_valid_polygon_to_co_ordinates() -> None:
     """Test that we can convert a sequence of points into a list of coordinates."""
     valid_points = [
         Point(x=0.0, y=1.0),
@@ -26,7 +26,7 @@ def test_valid_polygon_to_coords() -> None:
             assert isinstance(coord_val, float)
 
 
-def test_invalid_polygon_to_coords() -> None:
+def test_invalid_polygon_to_co_ordinates() -> None:
     """Test that we throw an exception should the polygon not be of the correct form."""
 
     invalid_points = [

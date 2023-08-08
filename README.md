@@ -4,6 +4,7 @@
 [//]: # (TODO: Update py2pdf package - DeprecationWarning: PyPDF2 is deprecated. Please move to the pypdf library instead.)
 [//]: # (TODO: Tag the dal to a specific version and specify this in poetry.)
 [//]: # (TODO: Add detect_and_set_languages to the parser output object in dal.)
+[//]: # (TODO: Update the types of text block in dal)
 
 ## Context 
 

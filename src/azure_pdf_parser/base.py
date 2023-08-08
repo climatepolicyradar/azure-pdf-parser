@@ -1,3 +1,5 @@
+import logging
+from collections import Counter
 from typing import Any, Sequence, Optional, List
 
 from azure.ai.formrecognizer import Point
@@ -8,10 +10,8 @@ from cpr_data_access.parser_models import (
     HTMLData,
     TextBlock,
 )
-from pydantic import BaseModel, root_validator, AnyHttpUrl
-from collections import Counter
 from langdetect import DetectorFactory, detect
-import logging
+from pydantic import BaseModel, root_validator, AnyHttpUrl
 
 logger = logging.getLogger(__name__)
 
