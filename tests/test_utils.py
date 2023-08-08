@@ -50,6 +50,7 @@ def test_invalid_polygon_to_co_ordinates() -> None:
 
 def test_convert_to_text_block(document_paragraph: DocumentParagraph) -> None:
     """Test that we can convert an Azure document paragraph to a text block."""
+    print(document_paragraph.role)
     text_block = azure_paragraph_to_text_block(
         paragraph_id=1, paragraph=document_paragraph
     )

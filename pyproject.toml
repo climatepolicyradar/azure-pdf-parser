@@ -9,7 +9,7 @@ packages = [{include = "azure_pdf_parser", from = "src"}]
 python = "^3.9"
 azure-ai-formrecognizer = "^3.2.1"
 pypdf2 = "^3.0.1"
-cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git"}
+cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git", rev = "6a57a3322ac619028807db962cc649176f4953a6"}
 requests = "^2.31.0"
 langdetect = "^1.0.9"
 
