@@ -1,5 +1,7 @@
+from typing import Union
+
 from azure_api_wrapper import AzureApiWrapper
-from cpr_pdf_parser.base import ParsingConfig
+from cpr_pdf_parser.base import ParsingConfig, LocalSaveConfig, S3SaveConfig
 
 
 class CprPdfParser:
@@ -10,14 +12,34 @@ class CprPdfParser:
         self.azure_client = azure_client
         self.parsing_config = parsing_config
 
-    def parse_url(self, document_url: str):
-        """Parse a document from a url."""
+    def parse_url(
+        self,
+        document_url: str,
+        big_document: bool = False,
+        save_name: Union[str, None] = None,
+    ):
+        """
+        Parse a document from a url.
+
+        Args:
+            document_url: The url of the document to parse.
+            big_document: Whether the document is large (>1500 pages).
+            save_name: The name to save the document as.
+        """
         # TODO call azure api
+        if big_document:
+            api_response = self.azure_client.analyze_large_document_from_url(
+                document_url
+            )
+        else:
+            api_response = self.azure_client.analyze_document_from_url(document_url)
 
-        # TODO use the parsing config to determine what to do with the response
-        pass
+        self.save(data=api_response.to_dict(), save_name=save_name)
 
-    def parse_file(self, document_path: str):
+        if self.parsing_config.parser_output_config.generate:
+            pass
+
+    def parse_file(self, document_path: str, big_document: bool = False):
         """Parse a document from a file path."""
         # TODO read in bytes
 
@@ -25,3 +47,18 @@ class CprPdfParser:
 
         # TODO use the parsing config to determine what to do with the response
         pass
+
+    def save(self, data: dict, save_name: Union[str, None]) -> None:
+        """Save the output of the parser."""
+        save_config = self.parsing_config.api_response_config.save_config
+        if save_config:
+            if isinstance(save_config, LocalSaveConfig):
+                # TODO save to local
+                pass
+            elif isinstance(save_config, S3SaveConfig):
+                # TODO save to s3
+                pass
+            else:
+                raise ValueError(
+                    f"Invalid save config type {type(save_config)} for api response."
+                )

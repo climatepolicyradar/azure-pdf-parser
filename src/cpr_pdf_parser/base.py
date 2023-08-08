@@ -16,8 +16,6 @@ class S3SaveConfig(BaseModel):
 
     output_bucket: str
     output_prefix: str
-    output_filename: str
-    output_format: str = "json"
     aws_access_key_id: str
     aws_secret_access_key: str
 
@@ -25,9 +23,7 @@ class S3SaveConfig(BaseModel):
 class LocalSaveConfig(BaseModel):
     """A class for configuring the saving of files locally."""
 
-    output_path: str
-    output_filename: str
-    output_format: str = "json"
+    output_dir: str
 
 
 class ParserOutputConfig(BaseModel):
