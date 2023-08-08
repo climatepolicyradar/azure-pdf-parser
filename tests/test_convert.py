@@ -6,9 +6,13 @@ from azure.ai.formrecognizer import (
     DocumentTable,
     AnalyzeResult,
 )
-from cpr_data_access.parser_models import PDFTextBlock, ParserInput
+from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
 
-from azure_pdf_parser.base import ExperimentalPDFTableBlock
+from azure_pdf_parser.base import (
+    ExperimentalPDFTableBlock,
+    ExperimentalParserOutput,
+    ExperimentalTableCell,
+)
 from azure_pdf_parser.convert import (
     polygon_to_co_ordinates,
     azure_paragraph_to_text_block,
@@ -19,12 +23,14 @@ from azure_pdf_parser.convert import (
 
 def test_valid_polygon_to_co_ordinates() -> None:
     """Test that we can convert a sequence of points into a list of coordinates."""
-    valid_points = [
-        Point(x=0.0, y=1.0),
-        Point(x=1.0, y=1.0),
-        Point(x=1.0, y=0.0),
-        Point(x=0.0, y=0.0),
+    valid_points_raw = [
+        (0.0, 1.0),
+        (1.0, 1.0),
+        (1.0, 0.0),
+        (0.0, 0.0),
     ]
+
+    valid_points = [Point(x=x, y=y) for x, y in valid_points_raw]
 
     coords = polygon_to_co_ordinates(valid_points)
     assert isinstance(coords, list)
@@ -32,6 +38,8 @@ def test_valid_polygon_to_co_ordinates() -> None:
         assert isinstance(coord, tuple)
         for coord_val in coord:
             assert isinstance(coord_val, float)
+
+    assert coords == valid_points_raw
 
 
 def test_invalid_polygon_to_co_ordinates() -> None:
@@ -45,27 +53,27 @@ def test_invalid_polygon_to_co_ordinates() -> None:
         Point(x=1.0, y=1.0),
     ]
 
-    coords = None
-    error = None
-    try:
-        coords = polygon_to_co_ordinates(invalid_points)
-    except ValueError as e:
-        error = e
-
-    assert error.__class__ is ValueError
-    assert coords is None
+    with unittest.TestCase().assertRaises(ValueError) as context:
+        polygon_to_co_ordinates(invalid_points)
+    assert str(context.exception) == "Polygon must have exactly four points."
 
 
 def test_azure_paragraph_to_text_block(document_paragraph: DocumentParagraph) -> None:
     """Test that we can convert an Azure document paragraph to a text block."""
-    print(document_paragraph.role)
     text_block = azure_paragraph_to_text_block(
         paragraph_id=1, paragraph=document_paragraph
     )
 
-    # Pydantic will validate the types so not alot more validation needed
     assert isinstance(text_block, PDFTextBlock)
-    assert text_block.type == "Document Header"
+    assert text_block.type == document_paragraph.role
+    assert text_block.type_confidence == 1
+    assert text_block.text_block_id == "1"
+    assert text_block.page_number == document_paragraph.bounding_regions[0].page_number
+    assert text_block.coords == polygon_to_co_ordinates(
+        document_paragraph.bounding_regions[0].polygon
+    )
+    assert text_block.text == [document_paragraph.content]
+    assert text_block.language is None
 
 
 def test_azure_table_to_table_block(document_table: DocumentTable) -> None:
@@ -78,6 +86,10 @@ def test_azure_table_to_table_block(document_table: DocumentTable) -> None:
     assert table_block.row_count is document_table.row_count
     assert table_block.column_count is document_table.column_count
     assert len(table_block.cells) is len(document_table.cells)
+    for cell in table_block.cells:
+        assert isinstance(cell, ExperimentalTableCell)
+    # TODO think more about cell content tests, potentially split out into separate
+    #   function and tests
 
 
 def test_azure_api_response_to_parser_output(
@@ -94,6 +106,7 @@ def test_azure_api_response_to_parser_output(
         md5_sum=md5_sum,
         api_response=one_page_analyse_result,
     )
+    assert isinstance(parser_output, ParserOutput)
     assert parser_output.document_md5_sum == md5_sum
 
     # Convert with experimental tables
@@ -103,6 +116,8 @@ def test_azure_api_response_to_parser_output(
         api_response=one_page_analyse_result,
         experimental_extract_tables=True,
     )
+    assert isinstance(parser_output, ExperimentalParserOutput)
+    assert parser_output.pdf_data.table_blocks is not None
     assert parser_output.document_md5_sum == md5_sum
 
     # Convert with a parser input object containing empty optional fields
