@@ -8,10 +8,10 @@ packages = [{include = "azure_pdf_parser", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 azure-ai-formrecognizer = "^3.2.1"
-pypdf2 = "^3.0.1"
 cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git", rev = "29e3078316620f08fd0e2fde95cc450f819f0644"}
 requests = "^2.31.0"
 langdetect = "^1.0.9"
+pypdf = "^3.15.0"
 
 
 [tool.poetry.dev-dependencies]

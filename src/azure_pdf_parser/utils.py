@@ -4,7 +4,7 @@ from io import BytesIO
 from typing import Sequence, Any
 import logging
 
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from azure.ai.formrecognizer import AnalyzeResult
 
 from azure_pdf_parser.base import PDFPage
@@ -70,14 +70,19 @@ def split_into_pages(document_bytes: BytesIO) -> dict[int, bytes]:
     pdf = PdfReader(document_bytes)
 
     pages_dict = {}
-    total_pages = len(pdf.pages)
-    for page_num in range(total_pages):
-        writer = PdfWriter()
-        writer.add_page(pdf.pages[page_num])
-        pdf_bytes = io.BytesIO()
-        writer.write(pdf_bytes)
-        pdf_bytes.seek(0)
-        pages_dict[page_num + 1] = pdf_bytes.read()
+    for page_number, page in enumerate(pdf.pages):
+        # Create a new PDF writer object
+        pdf_writer = PdfWriter()
+        pdf_writer.add_page(page)
+
+        # Create a BytesIO buffer to write the PDF content
+        output_buffer = io.BytesIO()
+        pdf_writer.write(output_buffer)
+
+        # Get the bytes content
+        pdf_bytes = output_buffer.getvalue()
+
+        pages_dict[page_number + 1] = pdf_bytes
 
     return pages_dict
 
