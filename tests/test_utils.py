@@ -1,18 +1,50 @@
-from azure.ai.formrecognizer import AnalyzeResult
 import io
+import unittest
+from unittest import mock
 
+from azure.ai.formrecognizer import AnalyzeResult
+
+from azure_pdf_parser.base import PDFPage
 from azure_pdf_parser.utils import (
     calculate_md5_sum,
     propagate_page_number,
     merge_responses,
     split_into_pages,
+    call_api_with_error_handling,
 )
 from helpers import is_valid_md5, is_valid_pdf
-from azure_pdf_parser.base import PDFPage
 
 
-def test_call_api_with_error_handling() -> None:
-    pass
+@mock.patch("azure_pdf_parser.utils.logger")
+def test_call_api_with_error_handling_good_response(mock_logger) -> None:
+    """Test that the API function is called correctly."""
+    mock_api_function = mock.Mock(return_value="response")
+    result = call_api_with_error_handling(3, mock_api_function, "arg1", kwarg="value")
+
+    assert result == "response"
+    mock_api_function.assert_called_once_with("arg1", kwarg="value")
+    mock_logger.info.assert_called_once_with(
+        "Calling API function with retries...",
+        extra={"props": {"retries": 3}},
+    )
+
+
+@mock.patch("azure_pdf_parser.utils.logger")
+def test_call_api_with_error_handling_bad_response(mock_logger) -> None:
+    """Test that the API function is called correctly."""
+    retries = 3
+    mock_api_function = mock.Mock(side_effect=Exception("API error"))
+
+    with unittest.TestCase().assertRaises(Exception) as context:
+        call_api_with_error_handling(retries, mock_api_function, "arg1", kwarg="value")
+
+    assert str(context.exception) == "API error"
+    mock_api_function.assert_called_with("arg1", kwarg="value")
+    mock_logger.info.assert_called_once_with(
+        "Calling API function with retries...",
+        extra={"props": {"retries": retries}},
+    )
+    assert mock_logger.error.call_count == retries
 
 
 def test_propagate_page_number(pdf_page) -> None:
