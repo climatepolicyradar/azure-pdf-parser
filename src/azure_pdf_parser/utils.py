@@ -1,3 +1,4 @@
+import hashlib
 import io
 from io import BytesIO
 from typing import Sequence, Any
@@ -44,7 +45,8 @@ def propagate_page_number(page: PDFPage) -> PDFPage:
 
 
 def merge_responses(pages: Sequence[PDFPage]) -> AnalyzeResult:
-    """Merge individual page responses from multiple API calls into one.
+    """
+    Merge individual page responses from multiple API calls into one.
 
     Currently, merging is done by concatenating the paragraphs and tables from each page.
     """
@@ -78,3 +80,8 @@ def split_into_pages(document_bytes: BytesIO) -> dict[int, bytes]:
         pages_dict[page_num + 1] = pdf_bytes.read()
 
     return pages_dict
+
+
+def calculate_md5_sum(doc_bytes: bytes) -> str:
+    """Calculate the md5 sum of the document bytes."""
+    return hashlib.md5(doc_bytes).hexdigest()

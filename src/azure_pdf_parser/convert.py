@@ -12,6 +12,7 @@ from cpr_data_access.parser_models import (
     PDFData,
     PDFPageMetadata,
     ParserInput,
+    CONTENT_TYPE_PDF,
 )
 from azure_pdf_parser.base import (
     ExperimentalTableCell,
@@ -141,7 +142,7 @@ def extract_azure_api_response_tables(
 
 def azure_api_response_to_parser_output(
     parser_input: ParserInput,
-    md5sum: str,
+    md5_sum: str,
     api_response: AnalyzeResult,
     experimental_extract_tables: bool = False,
 ) -> Union[ParserOutput, ExperimentalParserOutput]:
@@ -150,9 +151,21 @@ def azure_api_response_to_parser_output(
 
     Also, optionally convert to an ExperimentalParserOutput. The experimental parser
     output configuration will also extract tables from the api response.
+
+    parser_input: ParserInput
+        The input object to the parser.
+    md5_sum: str
+        The md5 sum of the document.
+    api_response: AnalyzeResult
+        The API response from the Azure Form Recognizer API.
+    experimental_extract_tables: bool
+        Whether to extract tables from the API response.
     """
     # FIXME: Check that the units of the dimensions are correct (units are in inches)
     #  in page metadata
+
+    if parser_input.document_content_type != CONTENT_TYPE_PDF:
+        raise ValueError("Document content type must be PDF.")
 
     text_blocks = extract_azure_api_response_paragraphs(api_response)
     page_metadata = [
@@ -175,15 +188,15 @@ def azure_api_response_to_parser_output(
                 document_source_url=parser_input.document_source_url,
                 document_cdn_object=parser_input.document_cdn_object,
                 document_content_type=parser_input.document_cdn_object,
-                document_md5_sum=md5sum,
+                document_md5_sum=md5_sum,
                 document_slug=parser_input.document_slug,
                 languages=None,
                 translated=False,
                 html_data=None,
                 pdf_data=ExperimentalPDFData(
                     page_metadata=page_metadata,
-                    md5sum=md5sum,
-                    text_blocks=text_blocks,
+                    md5sum=md5_sum,
+                    text_blocks=text_blocks if not None else [],
                     table_blocks=table_blocks,
                 ),
             )
@@ -200,15 +213,15 @@ def azure_api_response_to_parser_output(
             document_source_url=parser_input.document_source_url,
             document_cdn_object=parser_input.document_cdn_object,
             document_content_type=parser_input.document_cdn_object,
-            document_md5_sum=md5sum,
+            document_md5_sum=md5_sum,
             document_slug=parser_input.document_slug,
             languages=None,
             translated=False,
             html_data=None,
             pdf_data=PDFData(
                 page_metadata=page_metadata,
-                md5sum=md5sum,
-                text_blocks=text_blocks,
+                md5sum=md5_sum,
+                text_blocks=text_blocks if not None else [],
             ),
         )
         .detect_and_set_languages()
