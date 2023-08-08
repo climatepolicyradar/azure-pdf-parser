@@ -9,6 +9,7 @@ from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTa
 from cpr_data_access.parser_models import ParserInput
 
 from azure_pdf_parser.azure_wrapper import AzureApiWrapper
+from azure_pdf_parser.base import PDFPage
 
 
 def read_local_json_file(file_path: str) -> Union[list[dict[dict]], dict]:
@@ -129,3 +130,9 @@ def parser_input_empty_optional_fields() -> ParserInput:
         document_description="description",
         document_slug="slug_123_name",
     )
+
+
+@pytest.fixture
+def pdf_page(one_page_analyse_result) -> PDFPage:
+    """A pdf page object"""
+    return PDFPage(page_number=123, extracted_content=one_page_analyse_result)

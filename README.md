@@ -5,6 +5,7 @@
 [//]: # (TODO: Tag the dal to a specific version and specify this in poetry.)
 [//]: # (TODO: Add detect_and_set_languages to the parser output object in dal.)
 [//]: # (TODO: Update the types of text block in dal)
+[//]: # (TODO: Split out anything that contains data access lib types into a separate packkage in this repo such that we have azure pdf parser and cpr pdf parser)
 
 ## Context 
 
