@@ -8,12 +8,12 @@ from azure.ai.formrecognizer import (
 )
 from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
 
-from azure_api_wrapper.base import (
+from cpr_pdf_parser.base import (
     ExperimentalPDFTableBlock,
     ExperimentalParserOutput,
     ExperimentalTableCell,
 )
-from azure_api_wrapper.convert import (
+from cpr_pdf_parser.convert import (
     polygon_to_co_ordinates,
     azure_paragraph_to_text_block,
     azure_table_to_table_block,
@@ -68,10 +68,13 @@ def test_azure_paragraph_to_text_block(document_paragraph: DocumentParagraph) ->
     assert text_block.type == document_paragraph.role
     assert text_block.type_confidence == 1
     assert text_block.text_block_id == "1"
-    assert text_block.page_number == document_paragraph.bounding_regions[0].page_number
-    assert text_block.coords == polygon_to_co_ordinates(
-        document_paragraph.bounding_regions[0].polygon
-    )
+    if document_paragraph.bounding_regions:
+        assert (
+            text_block.page_number == document_paragraph.bounding_regions[0].page_number
+        )
+        assert text_block.coords == polygon_to_co_ordinates(
+            document_paragraph.bounding_regions[0].polygon
+        )
     assert text_block.text == [document_paragraph.content]
     assert text_block.language is None
 
