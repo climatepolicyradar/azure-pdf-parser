@@ -1,11 +1,20 @@
 from typing import Union, Optional
 
+from azure.ai.formrecognizer import AnalyzeResult
+from cpr_data_access.parser_models import ParserOutput
 from pydantic import BaseModel, root_validator
 from enum import Enum
 
+from cpr_pdf_parser.experimental_base import ExperimentalParserOutput
+
 
 class ParserOutputTypes(str, Enum):
-    """Enum for the different types of parser output."""
+    """
+    Enum for the different types of parser output.
+
+    Default: Default parser output with no tables.
+    Experimental: Experimental parser output with tables.
+    """
 
     Default = "Default"
     Experimental = "Experimental"
@@ -16,8 +25,6 @@ class S3SaveConfig(BaseModel):
 
     output_bucket: str
     output_prefix: str
-    aws_access_key_id: str
-    aws_secret_access_key: str
 
 
 class LocalSaveConfig(BaseModel):
@@ -50,5 +57,12 @@ class ApiResponseConfig(BaseModel):
 class ParsingConfig(BaseModel):
     """A class for configuring the behaviour of pdf parsing at CPR."""
 
-    parser_output_config: ParserOutputConfig
-    api_response_config: ApiResponseConfig
+    parser_output: ParserOutputConfig
+    api_response: ApiResponseConfig
+
+
+class ParsedDocumentResponse(BaseModel):
+    """A response from the CPR PDF Parser from a document parsing operation."""
+
+    parser_output: Optional[Union[ParserOutput, ExperimentalParserOutput]] = None
+    api_response: Optional[AnalyzeResult] = None

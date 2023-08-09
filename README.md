@@ -9,44 +9,18 @@
 
 ## Context 
 
-This repo provides a python wrapper class for calling text extraction on local or url accessible pdf documents. 
-
-Utility code is then provided to enable the conversion of this api response object to a Parser Output object.
+This repo provides two python packages. A python wrapper class for azure text extraction api and a package for using this response for our purposes at cpr. 
 
 
-## Setup 
+## Design Decisions 
 
-Prior to using this wrapper class you will need to have an [Azure FormRecognizer processor](https://azure.microsoft.com/en-gb/products/form-recognizer) instantiated in the microsoft azure cloud. 
-
-You will then need to identify your endpoint and key variables for access. 
-
-## Usage
-
-Install dependencies: 
-
-        poetry install 
-
-Enter the python shell: 
-
-        python3 
-
-Import the wrapper class and conversion function: 
-
-        from azure_wrapper_temp.azure_wrapper import AzureApiWrapper
-        
-        from azure_wrapper.convert import azure_api_response_to_parser_output
-
-Instantiate client connection and call text extraction on a pdf accessible via an endpoint. Then convert to a parser output object:
-
-        azure_client = AzureApiWrapper(AZURE_KEY, AZURE_ENDPOINT)
-
-        api_response = azure_client.analyze_document_from_url(
-                            doc_url="https://example.com/file.pdf"
-                        )
-        
-        parser_output = azure_api_response_to_parser_output(
-                            api_response
-                        )
-
+1. Separate Distinct packages: 
+    * The `azure_api_wrapper` provides a generic wrapper for calling the azure api. This means that the package knows nothing of our CPR data model and could be used in isolation if a user desired to simply extract text from pdf documents using python.
+    * The `cpr_pdf_parser` provides more useful functionality for us at CPR by converting the response to our data model, providing the option to save to s3 or locally etc. 
+      * The arguments to this parser contain a client connection to s3 and the azure api as well as the config for the parser. This means that we can front load any connection issues in the program as well as any configuration value errors.
+      * Experimental types are implemented as an option to extract tables. 
+    * Decision to pull down the documents and use the from bytes endpoint. 
+      * This allows us to get the md5sum 
+      * Identify whether the document is a large document and thus, which endpoint we should use (default or large document).
 
         

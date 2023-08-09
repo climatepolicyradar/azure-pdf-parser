@@ -162,7 +162,9 @@ def azure_api_response_to_parser_output(
         Whether to extract tables from the API response.
     """
     # FIXME: Check that the units of the dimensions are correct (units are in inches)
-    #  in page metadata
+    #  in page metadata.
+
+    # FIXME: Do we really need md5_sum? It's not used anywhere in the codebase.
 
     if parser_input.document_content_type != CONTENT_TYPE_PDF:
         raise ValueError("Document content type must be PDF.")
