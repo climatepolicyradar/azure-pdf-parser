@@ -1,4 +1,4 @@
-name: Semver Tagging
+name: Tag Package
 
 on:
   push:
