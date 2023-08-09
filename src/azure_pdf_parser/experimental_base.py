@@ -174,10 +174,11 @@ class ExperimentalParserOutput(BaseModel):
         """
         Store the document languages attribute as part of the object.
 
-        This is done by getting all  languages with proportion above
-        `min_language_proportion`. :attribute min_language_proportion: Minimum
-        proportion of text blocks in a language for it to be considered a language of
-        the document.
+        This is done by getting all languages with proportion above
+        `min_language_proportion`.
+
+        :attribute min_language_proportion: Minimum proportion of text blocks in a
+        language for it to be considered a language of the document.
         """
 
         all_text_block_languages = [

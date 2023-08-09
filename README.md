@@ -22,31 +22,37 @@ You will then need to identify your endpoint and key variables for access.
 
 ## Usage
 
-Install dependencies: 
+Install dependencies and enter the python shell: 
 
-        poetry install 
-
-Enter the python shell: 
-
+        poetry install
         python3 
 
 Import the wrapper class and conversion function: 
 
-        from azure_wrapper_temp.azure_wrapper import AzureApiWrapper
-        
-        from azure_wrapper.convert import azure_api_response_to_parser_output
+        from azure_pdf_parser import AzureApiWrapper
+        from azure_pdf_parser import azure_api_response_to_parser_output
 
 Instantiate client connection and call text extraction on a pdf accessible via an endpoint. Then convert to a parser output object:
 
         azure_client = AzureApiWrapper(AZURE_KEY, AZURE_ENDPOINT)
 
         api_response = azure_client.analyze_document_from_url(
-                            doc_url="https://example.com/file.pdf"
-                        )
+            doc_url="https://example.com/file.pdf"
+        )
         
         parser_output = azure_api_response_to_parser_output(
-                            api_response
-                        )
+            parser_input=parser_input,
+            md5_sum=md5_sum,
+            api_response=api_response,
+            experimental_extract_tables=True,
+        )
 
 
-        
+One has four options for calling the text extraction api:
+
+1. `analyze_document_from_url` - Pass a url to a pdf document.
+2. `analyze_document_from_bytes` - Pass a byte string of a pdf document.
+3. `analyze_large_document_from_url` - Pass a url to a pdf document that's greater than ~1500 pages.
+4. `analyze_large_document_from_bytes` - Pass a bytes string of a pdf document that's greater than ~1500 pages. 
+
+The package also provides functionality to extract tables from the pdf document. This is an experimental feature and is not recommended for use in production. This can be configured by setting the `experimental_extract_tables` flag to `True` when calling the `azure_api_response_to_parser_output` function. This defaults to `False`.
