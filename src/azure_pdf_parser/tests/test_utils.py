@@ -4,7 +4,7 @@ from unittest import mock
 
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_pdf_parser.base import PDFPage
+from azure_pdf_parser.experimental_base import PDFPage
 from azure_pdf_parser.utils import (
     calculate_md5_sum,
     propagate_page_number,
@@ -12,7 +12,7 @@ from azure_pdf_parser.utils import (
     split_into_pages,
     call_api_with_error_handling,
 )
-from helpers import is_valid_md5, is_valid_pdf
+from azure_pdf_parser.tests.helpers import is_valid_md5, is_valid_pdf
 
 
 @mock.patch("azure_pdf_parser.utils.logger")
