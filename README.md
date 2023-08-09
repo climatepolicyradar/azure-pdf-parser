@@ -48,4 +48,6 @@ One has four options for calling the text extraction api:
 3. `analyze_large_document_from_url` - Pass a url to a pdf document that's greater than ~1500 pages.
 4. `analyze_large_document_from_bytes` - Pass a bytes string of a pdf document that's greater than ~1500 pages. 
 
+The reason we have two different methods for large documents is so the Azure API can provide functionality for a user to provide either the bytes of a document or the url of the document. For the `analyze_large_document_from_url` method the azure wrapper will then handle the download of the document from source as well as the splitting of the document and calling of the api. 
+
 The package also provides functionality to extract tables from the pdf document. This is an experimental feature and is not recommended for use in production. This can be configured by setting the `experimental_extract_tables` flag to `True` when calling the `azure_api_response_to_parser_output` function. This defaults to `False`.
