@@ -2,7 +2,7 @@ import logging
 from collections import Counter
 from typing import Sequence, Optional, List
 
-from azure.ai.formrecognizer import Point, AnalyzeResult
+from azure.ai.formrecognizer import Point
 from cpr_data_access.parser_models import (
     PDFData,
     CONTENT_TYPE_HTML,
@@ -15,17 +15,8 @@ from pydantic import BaseModel, root_validator, AnyHttpUrl
 
 logger = logging.getLogger(__name__)
 
-
-class PDFPage(BaseModel):
-    """Pdf document page object with content and page number."""
-
-    class Config:
-        """Config for the pydantic model to use AnalyzeResult."""
-
-        arbitrary_types_allowed = True
-
-    page_number: int
-    extracted_content: AnalyzeResult
+#  TODO add tests for the experimental types if we decide to keep them
+#    Won't build until we do this
 
 
 class ExperimentalBoundingRegion(BaseModel):
