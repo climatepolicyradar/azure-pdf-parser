@@ -1,8 +1,7 @@
 from unittest.mock import patch, Mock
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_pdf_parser.experimental_base import PDFPage
-from azure_pdf_parser.azure_wrapper import AzureApiWrapper
+from azure_pdf_parser import AzureApiWrapper, PDFPage
 from azure_pdf_parser.utils import call_api_with_error_handling
 
 
