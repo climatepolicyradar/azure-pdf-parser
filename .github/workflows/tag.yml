@@ -1,0 +1,24 @@
+name: Semver Tagging
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  tag-main-with-semver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: List Tags Pre-tag
+        run: |
+          git tag -l
+
+      - name: Tag main with semver
+        run: |
+          git tag -a ${GITHUB_REF##*/} -m "Tagging ${GITHUB_REF##*/} in CI/CD."
+
+      - name: List Tags Post-tag
+        run: |
+          git tag -l
