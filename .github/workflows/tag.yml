@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  tag-main-with-semver:
+  tag-pull-requests-and-merges-to-main:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
         run: |
           git tag -l
 
-      - name: Tag main with semver
+      - name: Tag
         run: |
           git tag -a ${GITHUB_REF##*/}-${GITHUB_SHA::8} -m "Tagging ${GITHUB_REF##*/} in CI/CD."
 
