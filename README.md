@@ -1,12 +1,5 @@
 # Azure PDF Parser 
 
-[//]: # (TODO: Update the reamde)
-[//]: # (TODO: Update py2pdf package - DeprecationWarning: PyPDF2 is deprecated. Please move to the pypdf library instead.)
-[//]: # (TODO: Tag the dal to a specific version and specify this in poetry.)
-[//]: # (TODO: Add detect_and_set_languages to the parser output object in dal.)
-[//]: # (TODO: Update the types of text block in dal)
-[//]: # (TODO: Split out anything that contains data access lib types into a separate packkage in this repo such that we have azure pdf parser and cpr pdf parser)
-
 ## Context 
 
 This repo provides a python wrapper class for calling text extraction on local or url accessible pdf documents. 
