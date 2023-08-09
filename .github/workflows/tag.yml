@@ -2,8 +2,11 @@ name: Semver Tagging
 
 on:
   push:
-    tags:
-      - v*
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   tag-main-with-semver:
