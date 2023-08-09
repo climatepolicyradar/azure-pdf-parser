@@ -68,6 +68,7 @@ def test_azure_paragraph_to_text_block(document_paragraph: DocumentParagraph) ->
     assert text_block.type == document_paragraph.role
     assert text_block.type_confidence == 1
     assert text_block.text_block_id == "1"
+    assert document_paragraph.bounding_regions is not None
     assert text_block.page_number == document_paragraph.bounding_regions[0].page_number
     assert text_block.coords == polygon_to_co_ordinates(
         document_paragraph.bounding_regions[0].polygon

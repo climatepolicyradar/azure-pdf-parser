@@ -1,6 +1,4 @@
-import unittest
-from unittest.mock import patch
-
+from unittest.mock import patch, Mock
 from azure.ai.formrecognizer import AnalyzeResult
 
 from azure_pdf_parser.experimental_base import PDFPage
@@ -78,7 +76,7 @@ def test_analyze_document_from_bytes(
 def test_document_split_one_page(
     mock_azure_client: AzureApiWrapper,
     one_page_analyse_result: AnalyzeResult,
-    mock_document_download_response_one_page: unittest.mock.Mock,
+    mock_document_download_response_one_page: Mock,
 ) -> None:
     """Test the processing of a document via url with the multi page function."""
     with patch("requests.get") as mock_get:
@@ -102,7 +100,7 @@ def test_document_split_one_page(
 def test_document_split_two_page(
     mock_azure_client: AzureApiWrapper,
     one_page_analyse_result: AnalyzeResult,
-    mock_document_download_response_two_page: unittest.mock.Mock,
+    mock_document_download_response_two_page: Mock,
 ) -> None:
     """
     Test the processing of a document via url with the split page functionality.

@@ -83,6 +83,8 @@ def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
         PDFPage(page_number=3, extracted_content=one_page_analyse_result),
     ]
 
+    assert one_page_analyse_result.paragraphs is not None
+    assert one_page_analyse_result.tables is not None
     paragraph_number_initial = len(one_page_analyse_result.paragraphs) * len(
         api_responses
     )
@@ -99,6 +101,8 @@ def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
     assert merged_api_response.documents == one_page_analyse_result.documents
 
     # Check that the number of paragraphs and tables is correct
+    assert merged_api_response.paragraphs is not None
+    assert merged_api_response.tables is not None
     assert len(merged_api_response.paragraphs) == paragraph_number_initial
     assert len(merged_api_response.tables) == table_number_initial
 
