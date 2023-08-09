@@ -4,29 +4,26 @@ import pytest
 from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTable
 from cpr_data_access.parser_models import ParserInput
 
-from azure_pdf_parser.azure_wrapper import AzureApiWrapper
-from azure_pdf_parser.experimental_base import PDFPage
-from azure_pdf_parser.tests.helpers import read_local_json_file, read_pdf_to_bytes
+from azure_pdf_parser import AzureApiWrapper, PDFPage
+from tests.helpers import read_local_json_file, read_pdf_to_bytes
 
 
 @pytest.fixture()
 def one_page_pdf_bytes() -> bytes:
     """Content for the sample one page pdf"""
-    return read_pdf_to_bytes("./src/azure_pdf_parser/tests/data/sample-one-page.pdf")
+    return read_pdf_to_bytes("./tests/data/sample-one-page.pdf")
 
 
 @pytest.fixture()
 def two_page_pdf_bytes() -> bytes:
     """Content for the sample two page pdf"""
-    return read_pdf_to_bytes("./src/azure_pdf_parser/tests/data/sample-two-page.pdf")
+    return read_pdf_to_bytes("./tests/data/sample-two-page.pdf")
 
 
 @pytest.fixture()
 def one_page_analyse_result() -> AnalyzeResult:
     """Mock response for the analyse document from url endpoint."""
-    data = read_local_json_file(
-        "./src/azure_pdf_parser/tests/data/sample-one-page.json"
-    )
+    data = read_local_json_file("./tests/data/sample-one-page.json")
     return AnalyzeResult.from_dict(data[0])
 
 
@@ -78,16 +75,14 @@ def mock_document_download_response_two_page(two_page_pdf_bytes) -> Mock:
 @pytest.fixture
 def document_paragraph() -> DocumentParagraph:
     """Construct a document paragraph object."""
-    data = read_local_json_file(
-        "./src/azure_pdf_parser/tests/data/document-paragraph.json"
-    )
+    data = read_local_json_file("./tests/data/document-paragraph.json")
     return DocumentParagraph.from_dict(data)  # type: ignore
 
 
 @pytest.fixture
 def document_table() -> DocumentTable:
     """Construct a document table object."""
-    data = read_local_json_file("./src/azure_pdf_parser/tests/data/document-table.json")
+    data = read_local_json_file("./tests/data/document-table.json")
     return DocumentTable.from_dict(data)  # type: ignore
 
 
