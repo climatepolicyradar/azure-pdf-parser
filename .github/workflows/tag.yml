@@ -1,0 +1,35 @@
+name: Tag Package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tag-pull-requests-and-merges-to-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: |
+          git config --global user.email "tech@cpr.org"
+          git config --global user.name "CPR Tech Team"
+
+      - name: List Tags Pre-tag
+        run: |
+          git tag -l
+
+      - name: Tag
+        run: |
+          git tag -a ${GITHUB_REF##*/}-${GITHUB_SHA::8} -m "Tagging ${GITHUB_REF##*/} in CI/CD."
+
+      - name: List Tags Post-tag
+        run: |
+          git tag -l
+
+      - name: Push the tag
+        run: |
+          git push origin ${GITHUB_REF##*/}-${GITHUB_SHA::8}
