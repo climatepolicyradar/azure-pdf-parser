@@ -29,3 +29,7 @@ jobs:
       - name: List Tags Post-tag
         run: |
           git tag -l
+
+      - name: Push the tag
+        run: |
+          git push origin ${GITHUB_REF##*/}-${GITHUB_SHA::8}
