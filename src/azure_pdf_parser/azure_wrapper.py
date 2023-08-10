@@ -22,8 +22,7 @@ class AzureApiWrapper:
 
     def __init__(self, key: str, endpoint: str):
         logger.info(
-            "Initializing Azure API wrapper with endpoint...",
-            extra={"props": {"endpoint": endpoint}},
+            "Initializing Azure API wrapper...",
         )
         self.document_analysis_client = DocumentAnalysisClient(
             endpoint=endpoint,
