@@ -103,6 +103,22 @@ def parser_input() -> ParserInput:
 
 
 @pytest.fixture
+def parser_input_no_content_type() -> ParserInput:
+    """A parser input object with no content-type"""
+    return ParserInput(
+        document_id="123",
+        document_metadata={"metadata_key": "metadata_value"},
+        document_name="name",
+        document_description="description",
+        document_source_url="https://example.com",
+        document_cdn_object="cdn_object",
+        document_content_type=None,
+        document_md5_sum="md5_sum_123_name",
+        document_slug="slug_123_name",
+    )
+
+
+@pytest.fixture
 def parser_input_empty_optional_fields() -> ParserInput:
     """A parser input object with empty optional fields"""
     return ParserInput(
