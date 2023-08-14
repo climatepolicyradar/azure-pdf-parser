@@ -95,6 +95,7 @@ def test_azure_table_to_table_block(document_table: DocumentTable) -> None:
 
 def test_azure_api_response_to_parser_output(
     parser_input: ParserInput,
+    parser_input_no_content_type: ParserInput,
     parser_input_empty_optional_fields: ParserInput,
     one_page_analyse_result: AnalyzeResult,
 ) -> None:
@@ -120,6 +121,15 @@ def test_azure_api_response_to_parser_output(
     assert isinstance(parser_output, ExperimentalParserOutput)
     assert parser_output.pdf_data.table_blocks is not None
     assert parser_output.document_md5_sum == md5_sum
+
+    # Convert with no document content-type
+    with unittest.TestCase().assertRaises(ValueError) as context:
+        azure_api_response_to_parser_output(
+            parser_input=parser_input_no_content_type,
+            md5_sum=md5_sum,
+            api_response=one_page_analyse_result,
+        )
+    assert str(context.exception) == "Document content type must be PDF."
 
     # Convert with a parser input object containing empty optional fields
     with unittest.TestCase().assertRaises(ValueError) as context:
