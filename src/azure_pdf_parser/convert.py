@@ -170,7 +170,8 @@ def azure_api_response_to_parser_output(
     text_blocks = extract_azure_api_response_paragraphs(api_response)
     page_metadata = [
         PDFPageMetadata(
-            page_number=page.page_number,
+            # Azure page numbers start from an index of 1, at cpr our data starts from 0
+            page_number=page.page_number - 1,
             dimensions=(page.width, page.height),
         )
         for page in api_response.pages
