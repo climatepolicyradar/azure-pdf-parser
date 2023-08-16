@@ -1,4 +1,5 @@
 from typing import Sequence, Union
+import logging
 
 from azure.ai.formrecognizer import (
     AnalyzeResult,
@@ -23,6 +24,8 @@ from .experimental_base import (
     ExperimentalPDFData,
     ExperimentalParserOutput,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def polygon_to_co_ordinates(polygon: Sequence[Point]) -> list[tuple[float, float]]:
@@ -154,6 +157,45 @@ def extract_azure_api_response_tables(
     return table_blocks if table_blocks is not [] else None
 
 
+def extract_azure_api_response_page_metadata(
+    api_response: AnalyzeResult,
+) -> Sequence[PDFPageMetadata]:
+    """
+    Extract page metadata from an azure api response.
+
+    Page Number: Azure page numbers start from an index of 1, at cpr our data starts from
+    0 and thus we minus one from the page number.
+
+    Dimensions: Azure units are in inches but our corpus is in 72ppi pixels, and thus we
+    multiply by a conversion factor.
+    """
+    return [
+        PDFPageMetadata(
+            page_number=page.page_number - 1,
+            dimensions=(
+                page.width * DIMENSION_CONVERSION_FACTOR,
+                page.height * DIMENSION_CONVERSION_FACTOR,
+            ),
+        )
+        if (
+            page.width is not None
+            and page.height is not None
+            and page.page_number is not None
+        )
+        else logger.warning(
+            f"Page metadata for page {page.page_number} is missing dimensions.",
+            extra={
+                "props": {
+                    "page_number": page.page_number,
+                    "width": page.width,
+                    "height": page.height,
+                }
+            },
+        )
+        for page in api_response.pages
+    ]
+
+
 def azure_api_response_to_parser_output(
     parser_input: ParserInput,
     md5_sum: str,
@@ -180,21 +222,7 @@ def azure_api_response_to_parser_output(
         raise ValueError("Document content type must be PDF.")
 
     text_blocks = extract_azure_api_response_paragraphs(api_response)
-    page_metadata = [
-        PDFPageMetadata(
-            # Azure page numbers start from an index of 1, at cpr our data starts from 0
-            page_number=page.page_number - 1,
-            # Azure units are in inches but our corpus is in 72ppi pixels
-            dimensions=(
-                page.width * DIMENSION_CONVERSION_FACTOR,
-                page.height * DIMENSION_CONVERSION_FACTOR,
-            ),
-        )
-        for page in api_response.pages
-        if page.width is not None
-        and page.height is not None
-        and page.page_number is not None
-    ]
+    page_metadata = extract_azure_api_response_page_metadata(api_response)
 
     if experimental_extract_tables:
         table_blocks = extract_azure_api_response_tables(api_response=api_response)
