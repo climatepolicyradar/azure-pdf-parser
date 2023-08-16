@@ -191,8 +191,7 @@ def azure_api_response_to_parser_output(
             ),
         )
         for page in api_response.pages
-        if page is not None
-        and page.width is not None
+        if page.width is not None
         and page.height is not None
         and page.page_number is not None
     ]
