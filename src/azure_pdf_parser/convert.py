@@ -14,6 +14,8 @@ from cpr_data_access.parser_models import (
     ParserInput,
     CONTENT_TYPE_PDF,
 )
+
+from .base import DIMENSION_CONVERSION_FACTOR
 from .experimental_base import (
     ExperimentalTableCell,
     ExperimentalBoundingRegion,
@@ -56,7 +58,13 @@ def azure_paragraph_to_text_block(
         raise ValueError("Paragraph must have bounding regions to create text block.")
 
     return PDFTextBlock(
-        coords=polygon_to_co_ordinates(paragraph.bounding_regions[0].polygon),
+        coords=[
+            (
+                DIMENSION_CONVERSION_FACTOR * coord[0],
+                DIMENSION_CONVERSION_FACTOR * coord[1],
+            )
+            for coord in polygon_to_co_ordinates(paragraph.bounding_regions[0].polygon)
+        ],
         page_number=paragraph.bounding_regions[0].page_number,
         text=[paragraph.content],
         text_block_id=str(paragraph_id),
@@ -105,7 +113,13 @@ def azure_table_to_table_block(
                 bounding_regions=[
                     ExperimentalBoundingRegion(
                         page_number=cell.bounding_regions[0].page_number,
-                        polygon=cell.bounding_regions[0].polygon,
+                        polygon=[
+                            Point(
+                                x=DIMENSION_CONVERSION_FACTOR * point.x,
+                                y=DIMENSION_CONVERSION_FACTOR * point.y,
+                            )
+                            for point in cell.bounding_regions[0].polygon
+                        ],
                     )
                 ],
             )
@@ -161,8 +175,6 @@ def azure_api_response_to_parser_output(
     experimental_extract_tables: bool
         Whether to extract tables from the API response.
     """
-    # FIXME: Check that the units of the dimensions are correct (units are in inches)
-    #  in page metadata
 
     if parser_input.document_content_type != CONTENT_TYPE_PDF:
         raise ValueError("Document content type must be PDF.")
@@ -172,9 +184,17 @@ def azure_api_response_to_parser_output(
         PDFPageMetadata(
             # Azure page numbers start from an index of 1, at cpr our data starts from 0
             page_number=page.page_number - 1,
-            dimensions=(page.width, page.height),
+            # Azure units are in inches but our corpus is in 72ppi pixels
+            dimensions=(
+                page.width * DIMENSION_CONVERSION_FACTOR,
+                page.height * DIMENSION_CONVERSION_FACTOR,
+            ),
         )
         for page in api_response.pages
+        if page is not None
+        and page.width is not None
+        and page.height is not None
+        and page.page_number is not None
     ]
 
     if experimental_extract_tables:
