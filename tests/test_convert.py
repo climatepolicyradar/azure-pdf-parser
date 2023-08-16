@@ -8,6 +8,7 @@ from azure.ai.formrecognizer import (
 )
 from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
 
+from azure_pdf_parser.base import DIMENSION_CONVERSION_FACTOR
 from azure_pdf_parser.experimental_base import (
     ExperimentalPDFTableBlock,
     ExperimentalParserOutput,
@@ -70,9 +71,12 @@ def test_azure_paragraph_to_text_block(document_paragraph: DocumentParagraph) ->
     assert text_block.text_block_id == "1"
     assert document_paragraph.bounding_regions is not None
     assert text_block.page_number == document_paragraph.bounding_regions[0].page_number
-    assert text_block.coords == polygon_to_co_ordinates(
-        document_paragraph.bounding_regions[0].polygon
-    )
+    assert text_block.coords == [
+        (DIMENSION_CONVERSION_FACTOR * coord[0], DIMENSION_CONVERSION_FACTOR * coord[1])
+        for coord in polygon_to_co_ordinates(
+            document_paragraph.bounding_regions[0].polygon
+        )
+    ]
     assert text_block.text == [document_paragraph.content]
     assert text_block.language is None
 

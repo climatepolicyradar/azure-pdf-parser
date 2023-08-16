@@ -1,4 +1,5 @@
 from typing import Sequence, Union
+import logging
 
 from azure.ai.formrecognizer import (
     AnalyzeResult,
@@ -14,6 +15,8 @@ from cpr_data_access.parser_models import (
     ParserInput,
     CONTENT_TYPE_PDF,
 )
+
+from .base import DIMENSION_CONVERSION_FACTOR
 from .experimental_base import (
     ExperimentalTableCell,
     ExperimentalBoundingRegion,
@@ -21,6 +24,8 @@ from .experimental_base import (
     ExperimentalPDFData,
     ExperimentalParserOutput,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def polygon_to_co_ordinates(polygon: Sequence[Point]) -> list[tuple[float, float]]:
@@ -56,7 +61,13 @@ def azure_paragraph_to_text_block(
         raise ValueError("Paragraph must have bounding regions to create text block.")
 
     return PDFTextBlock(
-        coords=polygon_to_co_ordinates(paragraph.bounding_regions[0].polygon),
+        coords=[
+            (
+                DIMENSION_CONVERSION_FACTOR * coord[0],
+                DIMENSION_CONVERSION_FACTOR * coord[1],
+            )
+            for coord in polygon_to_co_ordinates(paragraph.bounding_regions[0].polygon)
+        ],
         page_number=paragraph.bounding_regions[0].page_number,
         text=[paragraph.content],
         text_block_id=str(paragraph_id),
@@ -105,7 +116,13 @@ def azure_table_to_table_block(
                 bounding_regions=[
                     ExperimentalBoundingRegion(
                         page_number=cell.bounding_regions[0].page_number,
-                        polygon=cell.bounding_regions[0].polygon,
+                        polygon=[
+                            Point(
+                                x=DIMENSION_CONVERSION_FACTOR * point.x,
+                                y=DIMENSION_CONVERSION_FACTOR * point.y,
+                            )
+                            for point in cell.bounding_regions[0].polygon
+                        ],
                     )
                 ],
             )
@@ -140,6 +157,45 @@ def extract_azure_api_response_tables(
     return table_blocks if table_blocks is not [] else None
 
 
+def extract_azure_api_response_page_metadata(
+    api_response: AnalyzeResult,
+) -> Sequence[PDFPageMetadata]:
+    """
+    Extract page metadata from an azure api response.
+
+    Page Number: Azure page numbers start from an index of 1, at cpr our data starts from
+    0 and thus we minus one from the page number.
+
+    Dimensions: Azure units are in inches but our corpus is in 72ppi pixels, and thus we
+    multiply by a conversion factor.
+    """
+    return [
+        PDFPageMetadata(
+            page_number=page.page_number - 1,
+            dimensions=(
+                page.width * DIMENSION_CONVERSION_FACTOR,
+                page.height * DIMENSION_CONVERSION_FACTOR,
+            ),
+        )
+        if (
+            page.width is not None
+            and page.height is not None
+            and page.page_number is not None
+        )
+        else logger.warning(
+            f"Page metadata for page {page.page_number} is missing dimensions.",
+            extra={
+                "props": {
+                    "page_number": page.page_number,
+                    "width": page.width,
+                    "height": page.height,
+                }
+            },
+        )
+        for page in api_response.pages
+    ]
+
+
 def azure_api_response_to_parser_output(
     parser_input: ParserInput,
     md5_sum: str,
@@ -161,21 +217,12 @@ def azure_api_response_to_parser_output(
     experimental_extract_tables: bool
         Whether to extract tables from the API response.
     """
-    # FIXME: Check that the units of the dimensions are correct (units are in inches)
-    #  in page metadata
 
     if parser_input.document_content_type != CONTENT_TYPE_PDF:
         raise ValueError("Document content type must be PDF.")
 
     text_blocks = extract_azure_api_response_paragraphs(api_response)
-    page_metadata = [
-        PDFPageMetadata(
-            # Azure page numbers start from an index of 1, at cpr our data starts from 0
-            page_number=page.page_number - 1,
-            dimensions=(page.width, page.height),
-        )
-        for page in api_response.pages
-    ]
+    page_metadata = extract_azure_api_response_page_metadata(api_response)
 
     if experimental_extract_tables:
         table_blocks = extract_azure_api_response_tables(api_response=api_response)
