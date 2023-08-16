@@ -169,31 +169,36 @@ def extract_azure_api_response_page_metadata(
     Dimensions: Azure units are in inches but our corpus is in 72ppi pixels, and thus we
     multiply by a conversion factor.
     """
-    return [
-        PDFPageMetadata(
-            page_number=page.page_number - 1,
-            dimensions=(
-                page.width * DIMENSION_CONVERSION_FACTOR,
-                page.height * DIMENSION_CONVERSION_FACTOR,
-            ),
-        )
+    pdf_page_metadata = []
+    for page in api_response.pages:
         if (
             page.width is not None
             and page.height is not None
             and page.page_number is not None
-        )
-        else logger.warning(
-            f"Page metadata for page {page.page_number} is missing dimensions.",
-            extra={
-                "props": {
-                    "page_number": page.page_number,
-                    "width": page.width,
-                    "height": page.height,
-                }
-            },
-        )
-        for page in api_response.pages
-    ]
+        ):
+            pdf_page_metadata.append(
+                PDFPageMetadata(
+                    page_number=page.page_number - 1,
+                    dimensions=(
+                        page.width * DIMENSION_CONVERSION_FACTOR,
+                        page.height * DIMENSION_CONVERSION_FACTOR,
+                    ),
+                )
+            )
+
+        else:
+            logger.warning(
+                f"Page metadata for page {page.page_number} is missing dimensions.",
+                extra={
+                    "props": {
+                        "page_number": page.page_number,
+                        "width": page.width,
+                        "height": page.height,
+                    }
+                },
+            )
+
+    return pdf_page_metadata
 
 
 def azure_api_response_to_parser_output(
