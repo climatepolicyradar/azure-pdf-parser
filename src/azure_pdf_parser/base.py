@@ -1,6 +1,8 @@
 from azure.ai.formrecognizer import AnalyzeResult
 from pydantic import BaseModel
 
+DIMENSION_CONVERSION_FACTOR = 72
+
 
 class PDFPage(BaseModel):
     """Pdf document page object with content and page number."""
