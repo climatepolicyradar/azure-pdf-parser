@@ -149,11 +149,11 @@ def parser_input_no_content_type(backend_document_json: dict) -> ParserInput:
 
 
 @pytest.fixture
-def parser_input_empty_optional_fields() -> ParserInput:
+def parser_input_empty_optional_fields(backend_document_json) -> ParserInput:
     """A parser input object with empty optional fields"""
     return ParserInput(
         document_id="123",
-        document_metadata={"metadata_key": "metadata_value"},
+        document_metadata=backend_document_json,
         document_name="name",
         document_description="description",
         document_slug="slug_123_name",
