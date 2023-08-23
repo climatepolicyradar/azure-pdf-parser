@@ -9,6 +9,36 @@ from tests.helpers import read_local_json_file, read_pdf_to_bytes
 
 
 @pytest.fixture()
+def backend_document_json() -> dict:
+    """A sample backend document json."""
+    return {
+        "publication_ts": "2013-01-01T00:00:00",
+        "name": "Dummy Name",
+        "description": "description",
+        "source_url": "http://existing.com",
+        "download_url": None,
+        "url": None,
+        "md5_sum": None,
+        "type": "EU Decision",
+        "source": "CCLW",
+        "import_id": "TESTCCLW.executive.4.4",
+        "family_import_id": "TESTCCLW.family.4.0",
+        "category": "Law",
+        "geography": "EUR",
+        "languages": ["English"],
+        "metadata": {
+            "hazards": [],
+            "frameworks": [],
+            "instruments": ["Capacity building|Governance"],
+            "keywords": ["Adaptation"],
+            "sectors": ["Economy-wide"],
+            "topics": ["Adaptation"],
+        },
+        "slug": "dummy_slug",
+    }
+
+
+@pytest.fixture()
 def one_page_pdf_bytes() -> bytes:
     """Content for the sample one page pdf"""
     return read_pdf_to_bytes("./tests/data/sample-one-page.pdf")
@@ -87,11 +117,11 @@ def document_table() -> DocumentTable:
 
 
 @pytest.fixture
-def parser_input() -> ParserInput:
+def parser_input(backend_document_json: dict) -> ParserInput:
     """A parser input object"""
     return ParserInput(
         document_id="123",
-        document_metadata={"metadata_key": "metadata_value"},
+        document_metadata=backend_document_json,
         document_name="name",
         document_description="description",
         document_source_url="https://example.com",
@@ -103,11 +133,11 @@ def parser_input() -> ParserInput:
 
 
 @pytest.fixture
-def parser_input_no_content_type() -> ParserInput:
+def parser_input_no_content_type(backend_document_json: dict) -> ParserInput:
     """A parser input object with no content-type"""
     return ParserInput(
         document_id="123",
-        document_metadata={"metadata_key": "metadata_value"},
+        document_metadata=backend_document_json,
         document_name="name",
         document_description="description",
         document_source_url="https://example.com",
