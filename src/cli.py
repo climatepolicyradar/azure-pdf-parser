@@ -36,6 +36,7 @@ empty_backend_document = BackendDocument(
 @click.option("--pdf-dir", help="Path to directory containing pdfs to process.", required=True, type=click.Path(exists=True, file_okay=False, path_type=Path))
 @click.option("--output-dir", help="Path to directory to write output JSONs to. Filenames and document IDs are be the filenames of the PDFs without extensions. Directory will be created if it doesn't exist.", required=True, type=click.Path(file_okay=False, path_type=Path))
 def cli(pdf_dir: Path, output_dir: Path):
+    """Run Azure PDF parser on a directory of PDFs. Outputs 'blank' parser output jsons to `--output-dir`, with just document ID, document name, text block and page metadata information populated."""
     load_dotenv(find_dotenv())
 
     if not output_dir.exists():
@@ -68,13 +69,13 @@ def cli(pdf_dir: Path, output_dir: Path):
         
         parser_output = ParserOutput(
             document_id=pdf_path.stem,
+            document_name=pdf_path.stem,
             document_cdn_object="",
             document_content_type="application/pdf",
             document_description="",
             document_metadata=empty_backend_document,
             document_md5_sum="",
-            document_name=pdf_path.stem,
-            document_slug=pdf_path.stem,
+            document_slug="",
             document_source_url="http://example.com", # type: ignore
             pdf_data=PDFData(text_blocks=text_blocks, page_metadata=page_metadata, md5sum=""),
         )
