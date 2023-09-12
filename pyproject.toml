@@ -28,6 +28,10 @@ nbmake = "^1.4.1"
 httpx = "^0.23.3"
 mock = "^5.1.0"
 
+
+[tool.poetry.group.cli.dependencies]
+click = "^8.1.7"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
