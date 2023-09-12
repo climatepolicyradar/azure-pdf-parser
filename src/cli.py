@@ -88,19 +88,23 @@ def cli(pdf_dir: Path, output_dir: Path):
         text_blocks = extract_azure_api_response_paragraphs(azure_response)
         page_metadata = extract_azure_api_response_page_metadata(azure_response)
 
-        parser_output = ParserOutput(
-            document_id=pdf_path.stem,
-            document_name=pdf_path.stem,
-            document_cdn_object="",
-            document_content_type="application/pdf",
-            document_description="",
-            document_metadata=empty_backend_document,
-            document_md5_sum="",
-            document_slug="",
-            document_source_url="http://example.com",  # type: ignore
-            pdf_data=PDFData(
-                text_blocks=text_blocks, page_metadata=page_metadata, md5sum=""
-            ),
+        parser_output = (
+            ParserOutput(
+                document_id=pdf_path.stem,
+                document_name=pdf_path.stem,
+                document_cdn_object="",
+                document_content_type="application/pdf",
+                document_description="",
+                document_metadata=empty_backend_document,
+                document_md5_sum="",
+                document_slug="",
+                document_source_url="http://example.com",  # type: ignore
+                pdf_data=PDFData(
+                    text_blocks=text_blocks, page_metadata=page_metadata, md5sum=""
+                ),
+            )
+            .detect_and_set_languages()
+            .set_document_languages_from_text_blocks()
         )
 
         (output_dir / f"{pdf_path.stem}.json").write_text(parser_output.json())
