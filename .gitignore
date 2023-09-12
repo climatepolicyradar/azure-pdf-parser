@@ -153,3 +153,5 @@ backend/models
 # PyCharm
 .idea/
 
+# Poetry
+poetry.toml
