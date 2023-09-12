@@ -12,8 +12,15 @@ def test_cli(
     mock_azure_client: AzureApiWrapper,
     one_page_pdf_bytes: bytes,
     two_page_pdf_bytes: bytes,
+    monkeypatch,
 ):
     runner = CliRunner()
+
+    monkeypatch.setenv("AZURE_PROCESSOR_KEY", "hello")
+    monkeypatch.setenv(
+        "AZURE_PROCESSOR_ENDPOINT",
+        "https://pipeline-1-text-extraction.cognitiveservices.azure.com/",
+    )
 
     with TemporaryDirectory() as temp_dir:
         pdf_dir = Path(temp_dir)
