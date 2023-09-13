@@ -19,7 +19,7 @@ def test_cli(
     monkeypatch.setenv("AZURE_PROCESSOR_KEY", "hello")
     monkeypatch.setenv(
         "AZURE_PROCESSOR_ENDPOINT",
-        "https://pipeline-1-text-extraction.cognitiveservices.azure.com/",
+        "https://example.com/",
     )
 
     with TemporaryDirectory() as temp_dir:
