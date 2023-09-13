@@ -163,8 +163,8 @@ def extract_azure_api_response_page_metadata(
     """
     Extract page metadata from an azure api response.
 
-    Page Number: Azure page numbers start from an index of 1, at cpr our data starts from
-    0 and thus we minus one from the page number.
+    Page Number: Azure page numbers start from an index of 1, at cpr our data starts
+    from 0 and thus we minus one from the page number.
 
     Dimensions: Azure units are in inches but our corpus is in 72ppi pixels, and thus we
     multiply by a conversion factor.
