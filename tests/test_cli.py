@@ -5,7 +5,6 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from src.azure_pdf_parser import AzureApiWrapper
-from src.cli import cli
 
 
 def test_cli(
@@ -17,10 +16,11 @@ def test_cli(
     runner = CliRunner()
 
     monkeypatch.setenv("AZURE_PROCESSOR_KEY", "hello")
-    monkeypatch.setenv(
-        "AZURE_PROCESSOR_ENDPOINT",
-        "https://example.com/",
-    )
+    monkeypatch.setenv("AZURE_PROCESSOR_ENDPOINT", "https://example.com/")
+
+    # Note: import needed here so that the monkeypatch works, otherwise the
+    # environment variables are retrieved before the monkeypatch is applied.
+    from src.cli import cli
 
     with TemporaryDirectory() as temp_dir:
         pdf_dir = Path(temp_dir)
