@@ -15,6 +15,18 @@ You will then need to identify your endpoint and key variables for access.
 
 ## Usage
 
+### Via CLI
+
+The CLI takes as input a directory of pdfs and outputs a directory of 'blank' parser output JSON files, with only the document_id, document_name, text blocks and page metadata fields populated.
+
+1. Install extra `cli` dependency group: `poetry install --with cli`
+2. Populate environment variables (see `.env.example`)
+3. Run the CLI: `poetry run python -m src.cli --pdf-dir <path to pdf directory> --output-dir <path to output directory>`
+
+
+
+### Programatically
+
 Install dependencies and enter the python shell: 
 
         poetry install
