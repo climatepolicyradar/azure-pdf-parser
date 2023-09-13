@@ -53,7 +53,8 @@ def merge_responses(pages: Sequence[PDFPage]) -> AnalyzeResult:
     """
     Merge individual page responses from multiple API calls into one.
 
-    Currently, merging is done by concatenating the paragraphs and tables from each page.
+    Currently, merging is done by concatenating the paragraphs and tables from each
+    page.
 
     This is as styles, documents, languages is found to be empty and we are only
     concerned with the tables and paragraphs for CPR purposes. If this changes,

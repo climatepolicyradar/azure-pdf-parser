@@ -47,12 +47,19 @@ empty_backend_document = BackendDocument(
 )
 @click.option(
     "--output-dir",
-    help="Path to directory to write output JSONs to. Filenames and document IDs are be the filenames of the PDFs without extensions. Directory will be created if it doesn't exist.",
+    help="""Path to directory to write output JSONs to. 
+    Filenames and document IDs are be the filenames of the PDFs without extensions.
+    Directory will be created if it doesn't exist.""",
     required=True,
     type=click.Path(file_okay=False, path_type=Path),
 )
 def cli(pdf_dir: Path, output_dir: Path):
-    """Run Azure PDF parser on a directory of PDFs. Outputs 'blank' parser output jsons to `--output-dir`, with just document ID, document name, text block and page metadata information populated."""
+    """
+    Run Azure PDF parser on a directory of PDFs.
+
+    Outputs 'blank' parser output jsons to `--output-dir`, with just
+    document ID, document name, text block and page metadata information populated.
+    """
     load_dotenv(find_dotenv())
 
     if not output_dir.exists():
@@ -61,7 +68,8 @@ def cli(pdf_dir: Path, output_dir: Path):
 
     if not AZURE_PROCESSOR_KEY or not AZURE_PROCESSOR_ENDPOINT:
         raise ValueError(
-            "Missing Azure API credentials. Set AZURE_PROCESSOR_KEY and AZURE_PROCESSOR_ENDPOINT environment variables."
+            """Missing Azure API credentials. Set AZURE_PROCESSOR_KEY and 
+            AZURE_PROCESSOR_ENDPOINT environment variables."""
         )
 
     azure_client = AzureApiWrapper(AZURE_PROCESSOR_KEY, AZURE_PROCESSOR_ENDPOINT)
@@ -73,7 +81,8 @@ def cli(pdf_dir: Path, output_dir: Path):
             azure_response = azure_client.analyze_document_from_bytes(pdf_bytes)
         except HttpResponseError:
             LOGGER.error(
-                f"Error processing {pdf_path.name} as short document. Trying again in individual pages."
+                f"""Error processing {pdf_path.name} as short document. 
+                Trying again in individual pages."""
             )
             try:
                 _, azure_response = azure_client.analyze_large_document_from_bytes(
