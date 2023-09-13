@@ -17,6 +17,9 @@ from src.azure_pdf_parser.convert import (
 
 LOGGER = logging.getLogger(__name__)
 
+AZURE_PROCESSOR_KEY = os.environ.get("AZURE_PROCESSOR_KEY")
+AZURE_PROCESSOR_ENDPOINT = os.environ.get("AZURE_PROCESSOR_ENDPOINT")
+
 empty_backend_document = BackendDocument(
     name="",
     description="",
@@ -55,9 +58,6 @@ def cli(pdf_dir: Path, output_dir: Path):
     if not output_dir.exists():
         LOGGER.warning(f"Output directory {output_dir} does not exist. Creating.")
         output_dir.mkdir(parents=True)
-
-    AZURE_PROCESSOR_KEY = os.environ.get("AZURE_PROCESSOR_KEY")
-    AZURE_PROCESSOR_ENDPOINT = os.environ.get("AZURE_PROCESSOR_ENDPOINT")
 
     if not AZURE_PROCESSOR_KEY or not AZURE_PROCESSOR_ENDPOINT:
         raise ValueError(
