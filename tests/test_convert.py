@@ -70,7 +70,9 @@ def test_azure_paragraph_to_text_block(document_paragraph: DocumentParagraph) ->
     assert text_block.type_confidence == 1
     assert text_block.text_block_id == "1"
     assert document_paragraph.bounding_regions is not None
-    assert text_block.page_number == document_paragraph.bounding_regions[0].page_number
+    assert (
+        text_block.page_number == document_paragraph.bounding_regions[0].page_number - 1
+    )
     assert text_block.coords == [
         (DIMENSION_CONVERSION_FACTOR * coord[0], DIMENSION_CONVERSION_FACTOR * coord[1])
         for coord in polygon_to_co_ordinates(
@@ -154,3 +156,13 @@ def test_azure_api_response_to_parser_output(
             experimental_extract_tables=True,
         )
     assert str(context.exception) == "Document content type must be PDF."
+
+    # Test that we can call the vertically_flip_text_block_coords method on the
+    # ParserOutput, this will assert that the page numbers are correct as well.
+    parser_output = azure_api_response_to_parser_output(
+        parser_input=parser_input,
+        md5_sum=md5_sum,
+        api_response=one_page_analyse_result,
+    )
+    assert isinstance(parser_output, ParserOutput)
+    parser_output.vertically_flip_text_block_coords().get_text_blocks()
