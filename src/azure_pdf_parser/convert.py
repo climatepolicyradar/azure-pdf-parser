@@ -68,7 +68,7 @@ def azure_paragraph_to_text_block(
             )
             for coord in polygon_to_co_ordinates(paragraph.bounding_regions[0].polygon)
         ],
-        page_number=paragraph.bounding_regions[0].page_number,
+        page_number=paragraph.bounding_regions[0].page_number - 1,
         text=[paragraph.content],
         text_block_id=str(paragraph_id),
         language=None,
@@ -115,7 +115,7 @@ def azure_table_to_table_block(
                 content=cell.content,
                 bounding_regions=[
                     ExperimentalBoundingRegion(
-                        page_number=cell.bounding_regions[0].page_number,
+                        page_number=cell.bounding_regions[0].page_number - 1,
                         polygon=[
                             Point(
                                 x=DIMENSION_CONVERSION_FACTOR * point.x,
