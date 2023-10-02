@@ -4,7 +4,7 @@ import pytest
 from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTable
 from cpr_data_access.parser_models import ParserInput
 
-from azure_pdf_parser import AzureApiWrapper, PDFPage
+from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
 from tests.helpers import read_local_json_file, read_pdf_to_bytes
 
 
@@ -161,6 +161,16 @@ def parser_input_empty_optional_fields(backend_document_json) -> ParserInput:
 
 
 @pytest.fixture
-def pdf_page(one_page_analyse_result) -> PDFPage:
-    """A pdf page object"""
-    return PDFPage(page_number=123, extracted_content=one_page_analyse_result)
+def pdf_page(one_page_analyse_result) -> PDFPagesBatchExtracted:
+    """
+    A pdf batch object with extracted content.
+
+    Note: The batch_number starts from a 0 -> n range where as the page range starts
+    from 1 -> n.
+    """
+    return PDFPagesBatchExtracted(
+        page_range=(123, 123),
+        extracted_content=one_page_analyse_result,
+        batch_number=122,
+        batch_size_max=1,
+    )
