@@ -22,8 +22,8 @@ jobs:
       - name: Install python or load from cache with dependencies
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
-          cache: 'poetry'
+          python-version: "3.9"
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
