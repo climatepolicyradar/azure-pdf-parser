@@ -4,13 +4,24 @@ from pydantic import BaseModel
 DIMENSION_CONVERSION_FACTOR = 72
 
 
-class PDFPage(BaseModel):
-    """Pdf document page object with content and page number."""
+class PDFPagesBatchExtracted(BaseModel):
+    """A batch of pdf pages with content spanning a range of pages."""
 
     class Config:
         """Config for the pydantic model to use AnalyzeResult."""
 
         arbitrary_types_allowed = True
 
-    page_number: int
+    page_range: tuple[int, int]
     extracted_content: AnalyzeResult
+    batch_number: int
+    batch_size_max: int
+
+
+class PDFPagesBatch(BaseModel):
+    """A batch of pdf pages with content spanning a range of pages."""
+
+    page_range: tuple[int, int]
+    batch_content: bytes
+    batch_number: int
+    batch_size_max: int
