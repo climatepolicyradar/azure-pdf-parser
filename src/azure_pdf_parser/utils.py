@@ -48,6 +48,8 @@ def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtract
     - page number 1 in the batch is page number 101 in the document (1 + 101 - 1).
     - page number 2 in the batch is page number 102 in the document (2 + 101 - 1).
     """
+    page_offset = batch.page_range[0] - 1
+
     if batch.extracted_content.paragraphs:
         for paragraph in batch.extracted_content.paragraphs:
             if paragraph and paragraph.bounding_regions:
