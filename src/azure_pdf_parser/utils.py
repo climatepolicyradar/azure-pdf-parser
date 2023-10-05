@@ -63,7 +63,7 @@ def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtract
                 if cell and cell.bounding_regions:
                     for bounding_region in cell.bounding_regions:
                         bounding_region.page_number = (
-                            bounding_region.page_number + batch.page_range[0] - 1
+                            bounding_region.page_number + page_offset
                         )
 
             if table.bounding_regions:
