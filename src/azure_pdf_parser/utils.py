@@ -121,9 +121,9 @@ def split_into_batches(
     )
     pdf = PdfReader(document_bytes)
 
-    batches: list[list] = [
+    page_batches: list[list] = [
         pdf.pages[page_index : page_index + batch_size]
-        for batch, page_index in enumerate(range(0, len(pdf.pages), batch_size))
+        for page_index in range(0, len(pdf.pages), batch_size)
     ]
 
     batches_with_bytes = []
