@@ -77,6 +77,10 @@ def test_propagate_page_number(pdf_page) -> None:
 
 def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
     """Test that the responses are merged correctly."""
+    one_page_analyse_result.documents = ["test_document"]
+    one_page_analyse_result.languages = ["test_language"]
+    one_page_analyse_result.styles = ["test_style"]
+
     api_responses = [
         PDFPage(page_number=1, extracted_content=one_page_analyse_result),
         PDFPage(page_number=2, extracted_content=one_page_analyse_result),
@@ -96,9 +100,9 @@ def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
     assert isinstance(merged_api_response, AnalyzeResult)
     assert merged_api_response.api_version == one_page_analyse_result.api_version
     assert merged_api_response.model_id == one_page_analyse_result.model_id
-    assert merged_api_response.languages == one_page_analyse_result.languages
-    assert merged_api_response.styles == one_page_analyse_result.styles
-    assert merged_api_response.documents == one_page_analyse_result.documents
+    assert merged_api_response.languages != one_page_analyse_result.languages
+    assert merged_api_response.styles != one_page_analyse_result.styles
+    assert merged_api_response.documents != one_page_analyse_result.documents
 
     # Check that the number of paragraphs and tables is correct
     assert merged_api_response.paragraphs is not None
