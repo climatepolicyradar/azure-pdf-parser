@@ -132,7 +132,7 @@ def split_into_batches(
         pdf_writer = PdfWriter()
 
         # TODO check the page number is correct
-        [pdf_writer.add_page(page) for page in batch]
+        [pdf_writer.add_page(page) for page in pages]
 
         # Create a BytesIO buffer to write the PDF content
         output_buffer = io.BytesIO()
