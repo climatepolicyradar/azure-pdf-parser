@@ -54,7 +54,7 @@ def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtract
         for paragraph in batch.extracted_content.paragraphs:
             if paragraph and paragraph.bounding_regions:
                 paragraph.bounding_regions[0].page_number = (
-                    paragraph.bounding_regions[0].page_number + batch.page_range[0] - 1
+                    paragraph.bounding_regions[0].page_number + page_offset
                 )
 
     if batch.extracted_content.tables:
