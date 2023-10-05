@@ -125,7 +125,46 @@ def test_document_split_two_page(
         assert len(page_api_responses) == 2
         for page_api_response in page_api_responses:
             assert isinstance(page_api_response, PDFPagesBatchExtracted)
-            # Check we recived the mock one page resposne
+            # Check we received the mock one-page response
             assert page_api_response.extracted_content == one_page_analyse_result
+
+        assert isinstance(merged_page_api_responses, AnalyzeResult)
+
+
+def test_document_split_n_page(
+    mock_azure_client_sixteen_page: AzureApiWrapper,
+    sixteen_page_analyse_result: AnalyzeResult,
+    mock_document_download_response_sixty_six_page: Mock,
+) -> None:
+    """
+    Test the processing of a document via url with the split page functionality.
+
+    We mock the response from the document download request as well as the response
+    from the azure api to extract content from the page.
+
+    For this configuration a document of 66 pages will be downloaded. This will be
+    chunked into batches of a size 16 pages. We will then mock the response from the
+    azure api to contain data for an 16 page document.
+
+    Thus, we are testing the azure api batching method at the package level with a
+    batch size of greater than one.
+    """
+    with patch("requests.get") as mock_get:
+        mock_get.return_value = mock_document_download_response_sixty_six_page
+
+        response = mock_azure_client_sixteen_page.analyze_large_document_from_url(
+            "https://example.com/test.pdf",
+            batch_size=16,
+        )
+
+        page_api_responses: Sequence[PDFPagesBatchExtracted] = response[0]
+        merged_page_api_responses: AnalyzeResult = response[1]
+
+        assert isinstance(page_api_responses, list)
+        assert len(page_api_responses) == 5  # 66 / 16 = 4.125 -> 5
+        for page_api_response in page_api_responses:
+            assert isinstance(page_api_response, PDFPagesBatchExtracted)
+            # Check we received the mock one-page response
+            assert page_api_response.extracted_content == sixteen_page_analyse_result
 
         assert isinstance(merged_page_api_responses, AnalyzeResult)
