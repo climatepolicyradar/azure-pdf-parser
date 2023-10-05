@@ -146,8 +146,8 @@ def split_into_batches(
         batches_with_bytes.append(
             PDFPagesBatch(
                 batch_content=pdf_batch_bytes,
-                page_range=(batch[0].page_number + 1, batch[-1].page_number + 1),
-                batch_number=index,
+                page_range=(pages[0].page_number + 1, pages[-1].page_number + 1),
+                batch_number=batch_index,
                 batch_size_max=batch_size,
             )
         )
