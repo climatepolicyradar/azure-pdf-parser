@@ -77,7 +77,9 @@ def test_propagate_page_number(pdf_page) -> None:
             assert bounding_region.page_number == pdf_page_processed.page_range[0]
 
 
-def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
+def test_merge_responses_one_page_results(
+    one_page_analyse_result: AnalyzeResult,
+) -> None:
     """Test that the responses are merged correctly."""
     api_responses = [
         PDFPagesBatchExtracted(
@@ -116,6 +118,55 @@ def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
     assert merged_api_response.languages == one_page_analyse_result.languages
     assert merged_api_response.styles == one_page_analyse_result.styles
     assert merged_api_response.documents == one_page_analyse_result.documents
+
+    # Check that the number of paragraphs and tables is correct
+    assert merged_api_response.paragraphs is not None
+    assert merged_api_response.tables is not None
+    assert len(merged_api_response.paragraphs) == paragraph_number_initial
+    assert len(merged_api_response.tables) == table_number_initial
+
+
+def test_merge_api_responses_sixteen_page_results(
+    sixteen_page_analyse_result: AnalyzeResult,
+) -> None:
+    """Test that the responses are merged correctly."""
+    api_responses = [
+        PDFPagesBatchExtracted(
+            page_range=(1, 16),
+            extracted_content=sixteen_page_analyse_result,
+            batch_number=1,
+            batch_size_max=16,
+        ),
+        PDFPagesBatchExtracted(
+            page_range=(16, 31),
+            extracted_content=sixteen_page_analyse_result,
+            batch_number=2,
+            batch_size_max=16,
+        ),
+        PDFPagesBatchExtracted(
+            page_range=(32, 46),
+            extracted_content=sixteen_page_analyse_result,
+            batch_number=3,
+            batch_size_max=16,
+        ),
+    ]
+
+    assert sixteen_page_analyse_result.paragraphs is not None
+    assert sixteen_page_analyse_result.tables is not None
+    paragraph_number_initial = len(sixteen_page_analyse_result.paragraphs) * len(
+        api_responses
+    )
+    table_number_initial = len(sixteen_page_analyse_result.tables) * len(api_responses)
+
+    merged_api_response = merge_responses(api_responses)
+
+    # Check that the result is an AnalyzeResult object
+    assert isinstance(merged_api_response, AnalyzeResult)
+    assert merged_api_response.api_version == sixteen_page_analyse_result.api_version
+    assert merged_api_response.model_id == sixteen_page_analyse_result.model_id
+    assert merged_api_response.languages == sixteen_page_analyse_result.languages
+    assert merged_api_response.styles == sixteen_page_analyse_result.styles
+    assert merged_api_response.documents == sixteen_page_analyse_result.documents
 
     # Check that the number of paragraphs and tables is correct
     assert merged_api_response.paragraphs is not None
