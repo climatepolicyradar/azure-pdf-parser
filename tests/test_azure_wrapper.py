@@ -1,7 +1,8 @@
+from typing import Sequence
 from unittest.mock import patch, Mock
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_pdf_parser import AzureApiWrapper, PDFPage
+from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
 from azure_pdf_parser.utils import call_api_with_error_handling
 
 
@@ -85,15 +86,17 @@ def test_document_split_one_page(
             "https://example.com/test.pdf"
         )
 
-        page_api_responses = response[0]
-        merged_page_api_responses = response[1]
+        batch_api_responses = response[0]
+        merged_batch_api_responses = response[1]
 
-        assert isinstance(page_api_responses, list)
-        assert len(page_api_responses) == 1
-        assert isinstance(page_api_responses[0], PDFPage)
-        assert page_api_responses[0].page_number == 1
-        assert page_api_responses[0].extracted_content == one_page_analyse_result
-        assert isinstance(merged_page_api_responses, AnalyzeResult)
+        assert isinstance(batch_api_responses, list)
+        assert len(batch_api_responses) == 1
+        assert isinstance(batch_api_responses[0], PDFPagesBatchExtracted)
+        assert batch_api_responses[0].page_range == (1, 1)
+        assert batch_api_responses[0].batch_number == 0
+        assert batch_api_responses[0].batch_size_max == 50  # Default batch size
+        assert batch_api_responses[0].extracted_content == one_page_analyse_result
+        assert isinstance(merged_batch_api_responses, AnalyzeResult)
 
 
 def test_document_split_two_page(
@@ -111,17 +114,18 @@ def test_document_split_two_page(
         mock_get.return_value = mock_document_download_response_two_page
 
         response = mock_azure_client.analyze_large_document_from_url(
-            "https://example.com/test.pdf"
+            "https://example.com/test.pdf",
+            batch_size=1,
         )
 
-        page_api_responses = response[0]
-        merged_page_api_responses = response[1]
+        page_api_responses: Sequence[PDFPagesBatchExtracted] = response[0]
+        merged_page_api_responses: AnalyzeResult = response[1]
 
         assert isinstance(page_api_responses, list)
         assert len(page_api_responses) == 2
-        for i, page_response in enumerate(page_api_responses):
-            assert isinstance(page_response, PDFPage)
-            assert page_response.page_number == i + 1
-            assert page_response.extracted_content == one_page_analyse_result
+        for page_api_response in page_api_responses:
+            assert isinstance(page_api_response, PDFPagesBatchExtracted)
+            # Check we recived the mock one page resposne
+            assert page_api_response.extracted_content == one_page_analyse_result
 
         assert isinstance(merged_page_api_responses, AnalyzeResult)
