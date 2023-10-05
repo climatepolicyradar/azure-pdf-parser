@@ -70,7 +70,9 @@ def merge_responses(pages: Sequence[PDFPage]) -> AnalyzeResult:
         if page.extracted_content.tables:
             all_tables.extend(page.extracted_content.tables)
 
-    merged_analyse_result: AnalyzeResult = pages.pop(0).extracted_content
+    merged_analyse_result = AnalyzeResult()
+    merged_analyse_result.api_version = pages[0].extracted_content.api_version
+    merged_analyse_result.model_id = pages[0].extracted_content.model_id
     merged_analyse_result.paragraphs = all_paragraphs
     merged_analyse_result.tables = all_tables
 
