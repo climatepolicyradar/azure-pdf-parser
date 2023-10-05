@@ -107,9 +107,9 @@ def merge_responses(batches: Sequence[PDFPagesBatchExtracted]) -> AnalyzeResult:
 
 
 def split_into_batches(
-    document_bytes: BytesIO, batch_size: Optional[int] = DEFAULT_BATCH_SIZE
+    document_bytes: BytesIO, batch_size: Optional[int] = None
 ) -> list[PDFPagesBatch]:
-    if not batch_size:
+    if batch_size is None:
         batch_size = DEFAULT_BATCH_SIZE
 
     if batch_size < 1:
