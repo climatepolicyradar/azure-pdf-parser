@@ -1,15 +1,18 @@
 import hashlib
 import io
 from io import BytesIO
-from typing import Sequence, Any
+from typing import Sequence, Any, Optional
 import logging
 
 from pypdf import PdfReader, PdfWriter
 from azure.ai.formrecognizer import AnalyzeResult
 
-from .base import PDFPage
+from .base import PDFPagesBatchExtracted, PDFPagesBatch
 
 logger = logging.getLogger(__name__)
+
+
+DEFAULT_BATCH_SIZE = 50
 
 
 def call_api_with_error_handling(retries: int, func, *args, **kwargs) -> Any:
@@ -29,29 +32,51 @@ def call_api_with_error_handling(retries: int, func, *args, **kwargs) -> Any:
                 raise e
 
 
-def propagate_page_number(page: PDFPage) -> PDFPage:
-    """Propagate the page number to the paragraphs and tables."""
-    if page.extracted_content.paragraphs:
-        for paragraph in page.extracted_content.paragraphs:
-            if paragraph and paragraph.bounding_regions:
-                paragraph.bounding_regions[0].page_number = page.page_number
+def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtracted:
+    """
+    Correct the page numbers in the batch.
 
-    if page.extracted_content.tables:
-        for table in page.extracted_content.tables:
+    This is done by propagating the page number of the start index of the batch to the
+    paragraphs and tables.
+
+    Page number in the batch is incremented as follows:
+
+    [1,2,3,4] and a page range of 101-104 -> [101,102,103,104]
+    Thus, incremented page number = page number + batch.page_range[0] - 1
+
+    E.g.
+    - page number 1 in the batch is page number 101 in the document (1 + 101 - 1).
+    - page number 2 in the batch is page number 102 in the document (2 + 101 - 1).
+    """
+    page_offset = batch.page_range[0] - 1
+
+    if batch.extracted_content.paragraphs:
+        for paragraph in batch.extracted_content.paragraphs:
+            if paragraph and paragraph.bounding_regions:
+                paragraph.bounding_regions[0].page_number = (
+                    paragraph.bounding_regions[0].page_number + page_offset
+                )
+
+    if batch.extracted_content.tables:
+        for table in batch.extracted_content.tables:
             for cell in table.cells:
                 if cell and cell.bounding_regions:
                     for bounding_region in cell.bounding_regions:
-                        bounding_region.page_number = page.page_number
+                        bounding_region.page_number = (
+                            bounding_region.page_number + page_offset
+                        )
 
             if table.bounding_regions:
                 for bounding_region in table.bounding_regions:
-                    bounding_region.page_number = page.page_number
-    return page
+                    bounding_region.page_number = (
+                        bounding_region.page_number + page_offset
+                    )
+    return batch
 
 
-def merge_responses(pages: Sequence[PDFPage]) -> AnalyzeResult:
+def merge_responses(batches: Sequence[PDFPagesBatchExtracted]) -> AnalyzeResult:
     """
-    Merge individual page responses from multiple API calls into one.
+    Merge page batch responses from multiple API calls into one.
 
     Currently, merging is done by concatenating the paragraphs and tables from each
     page.
@@ -59,44 +84,75 @@ def merge_responses(pages: Sequence[PDFPage]) -> AnalyzeResult:
     This is as styles, documents, languages is found to be empty and we are only
     concerned with the tables and paragraphs for CPR purposes. If this changes,
     we will be storing the raw api responses and thus will be able to recover state.
+
+    Note that the content field is not required to be appended to in the merge analyse
+    result as this content duplicates the data in the paragraphs.
     """
-    pages = [propagate_page_number(page) for page in pages]
+    batches = [propagate_page_number(batch) for batch in batches]
 
     all_paragraphs = []
     all_tables = []
-    for page in pages:
-        if page.extracted_content.paragraphs:
-            all_paragraphs.extend(page.extracted_content.paragraphs)
-        if page.extracted_content.tables:
-            all_tables.extend(page.extracted_content.tables)
+    for batch in batches:
+        if batch.extracted_content.paragraphs:
+            all_paragraphs.extend(batch.extracted_content.paragraphs)
+        if batch.extracted_content.tables:
+            all_tables.extend(batch.extracted_content.tables)
 
-    merged_analyse_result: AnalyzeResult = pages.pop(0).extracted_content
+    # Copy the first result to a variable and add the content for all the pages.
+    merged_analyse_result: AnalyzeResult = batches.pop(0).extracted_content
     merged_analyse_result.paragraphs = all_paragraphs
     merged_analyse_result.tables = all_tables
 
     return merged_analyse_result
 
 
-def split_into_pages(document_bytes: BytesIO) -> dict[int, bytes]:
-    """Split the API response into individual pages."""
+def split_into_batches(
+    document_bytes: BytesIO, batch_size: Optional[int] = None
+) -> list[PDFPagesBatch]:
+    if batch_size is None:
+        batch_size = DEFAULT_BATCH_SIZE
+
+    if batch_size < 1:
+        raise ValueError("Batch size must be greater than 0.")
+
+    """Split the API response into a batch of pages."""
+    logger.info(
+        "Splitting pdf into batches.", extra={"props": {"batch size": batch_size}}
+    )
     pdf = PdfReader(document_bytes)
 
-    pages_dict = {}
-    for page_number, page in enumerate(pdf.pages):
+    page_batches: list[list] = [
+        pdf.pages[page_index : page_index + batch_size]
+        for page_index in range(0, len(pdf.pages), batch_size)
+    ]
+
+    batches_with_bytes = []
+    for batch_index, pages in enumerate(page_batches):
         # Create a new PDF writer object
         pdf_writer = PdfWriter()
-        pdf_writer.add_page(page)
+
+        # TODO check the page number is correct
+        [pdf_writer.add_page(page) for page in pages]
 
         # Create a BytesIO buffer to write the PDF content
         output_buffer = io.BytesIO()
         pdf_writer.write(output_buffer)
 
         # Get the bytes content
-        pdf_bytes = output_buffer.getvalue()
+        pdf_batch_bytes = output_buffer.getvalue()
 
-        pages_dict[page_number + 1] = pdf_bytes
+        # TODO check the page number is correct
+        # Adding one to the page range as we want to go from 1 -> n
+        batches_with_bytes.append(
+            PDFPagesBatch(
+                batch_content=pdf_batch_bytes,
+                page_range=(pages[0].page_number + 1, pages[-1].page_number + 1),
+                batch_number=batch_index,
+                batch_size_max=batch_size,
+            )
+        )
 
-    return pages_dict
+    return batches_with_bytes
 
 
 def calculate_md5_sum(doc_bytes: bytes) -> str:
