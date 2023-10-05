@@ -4,7 +4,7 @@ import pytest
 from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTable
 from cpr_data_access.parser_models import ParserInput
 
-from azure_pdf_parser import AzureApiWrapper, PDFPage
+from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
 from tests.helpers import read_local_json_file, read_pdf_to_bytes
 
 
@@ -51,9 +51,22 @@ def two_page_pdf_bytes() -> bytes:
 
 
 @pytest.fixture()
+def sixty_six_page_pdf_bytes() -> bytes:
+    """Content for the sample sixty-six page pdf"""
+    return read_pdf_to_bytes("./tests/data/sample-sixty-six-page.pdf")
+
+
+@pytest.fixture()
 def one_page_analyse_result() -> AnalyzeResult:
     """Mock response for the analyse document from url endpoint."""
     data = read_local_json_file("./tests/data/sample-one-page.json")
+    return AnalyzeResult.from_dict(data[0])
+
+
+@pytest.fixture()
+def sixteen_page_analyse_result() -> AnalyzeResult:
+    """Mock response for the analyse document from url endpoint."""
+    data = read_local_json_file("./tests/data/sample-sixteen-page.json")
     return AnalyzeResult.from_dict(data[0])
 
 
@@ -74,12 +87,43 @@ def mock_azure_client(one_page_analyse_result) -> AzureApiWrapper:
     return azure_client
 
 
+@pytest.fixture()
+def mock_azure_client_sixteen_page(sixteen_page_analyse_result) -> AzureApiWrapper:
+    """
+    A mock client to the azure form recognizer api.
+
+    Client contains mocked responses from the api endpoints.
+    """
+    azure_client = AzureApiWrapper("user", "pass")
+    azure_client.analyze_document_from_url = MagicMock(
+        return_value=sixteen_page_analyse_result
+    )
+    azure_client.analyze_document_from_bytes = MagicMock(
+        return_value=sixteen_page_analyse_result
+    )
+    return azure_client
+
+
 @pytest.fixture
 def mock_document_download_response_one_page(one_page_pdf_bytes) -> Mock:
     """Create a mock response to a download request for a pdf document with one page."""
     # Create a mock Response object
     mock_response = Mock()
     mock_response.content = one_page_pdf_bytes
+
+    # Set the status code and other attributes as needed for your test
+    mock_response.status_code = 200
+    mock_response.headers = {"content-type": "application/pdf"}
+
+    return mock_response
+
+
+@pytest.fixture
+def mock_document_download_response_sixty_six_page(sixty_six_page_pdf_bytes) -> Mock:
+    """Create a mock response to a download request for a pdf document with one page."""
+    # Create a mock Response object
+    mock_response = Mock()
+    mock_response.content = sixty_six_page_pdf_bytes
 
     # Set the status code and other attributes as needed for your test
     mock_response.status_code = 200
@@ -161,6 +205,16 @@ def parser_input_empty_optional_fields(backend_document_json) -> ParserInput:
 
 
 @pytest.fixture
-def pdf_page(one_page_analyse_result) -> PDFPage:
-    """A pdf page object"""
-    return PDFPage(page_number=123, extracted_content=one_page_analyse_result)
+def pdf_page(one_page_analyse_result) -> PDFPagesBatchExtracted:
+    """
+    A pdf batch object with extracted content.
+
+    Note: The batch_number starts from a 0 -> n range where as the page range starts
+    from 1 -> n.
+    """
+    return PDFPagesBatchExtracted(
+        page_range=(123, 123),
+        extracted_content=one_page_analyse_result,
+        batch_number=122,
+        batch_size_max=1,
+    )
