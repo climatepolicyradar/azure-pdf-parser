@@ -82,7 +82,7 @@ class AzureApiWrapper:
             document_bytes=BytesIO(resp.content), batch_size=batch_size
         )
 
-        batch_api_responses = [
+        page_api_responses = [
             PDFPagesBatchExtracted(
                 page_range=batch.page_range,
                 extracted_content=call_api_with_error_handling(
@@ -97,7 +97,7 @@ class AzureApiWrapper:
             for batch in batches
         ]
 
-        return batch_api_responses, merge_responses(batch_api_responses)
+        return page_api_responses, merge_responses(page_api_responses)
 
     def analyze_large_document_from_bytes(
         self,
