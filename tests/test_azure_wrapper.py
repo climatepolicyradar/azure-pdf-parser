@@ -131,10 +131,10 @@ def test_document_split_two_page(
         assert isinstance(merged_page_api_responses, AnalyzeResult)
 
 
-def test_document_split_n_page(
+def test_document_split_sixty_eight_page(
     mock_azure_client_sixteen_page: AzureApiWrapper,
     sixteen_page_analyse_result: AnalyzeResult,
-    mock_document_download_response_sixty_six_page: Mock,
+    mock_document_download_response_sixty_eight_page: Mock,
 ) -> None:
     """
     Test the processing of a document via url with the split page functionality.
@@ -150,7 +150,7 @@ def test_document_split_n_page(
     batch size of greater than one.
     """
     with patch("requests.get") as mock_get:
-        mock_get.return_value = mock_document_download_response_sixty_six_page
+        mock_get.return_value = mock_document_download_response_sixty_eight_page
 
         response = mock_azure_client_sixteen_page.analyze_large_document_from_url(
             "https://example.com/test.pdf",
@@ -161,7 +161,7 @@ def test_document_split_n_page(
         merged_page_api_responses: AnalyzeResult = response[1]
 
         assert isinstance(page_api_responses, list)
-        assert len(page_api_responses) == 5  # 66 / 16 = 4.125 -> 5
+        assert len(page_api_responses) == 5  # 68 / 16 = 4.25 -> 5
         for page_api_response in page_api_responses:
             assert isinstance(page_api_response, PDFPagesBatchExtracted)
             # Check we received the mock one-page response

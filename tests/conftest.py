@@ -51,9 +51,9 @@ def two_page_pdf_bytes() -> bytes:
 
 
 @pytest.fixture()
-def sixty_six_page_pdf_bytes() -> bytes:
-    """Content for the sample sixty-six page pdf"""
-    return read_pdf_to_bytes("./tests/data/sample-sixty-six-page.pdf")
+def sixty_eight_page_pdf_bytes() -> bytes:
+    """Content for the sample sixty-eight page pdf"""
+    return read_pdf_to_bytes("./tests/data/sample-sixty-eight-page.pdf")
 
 
 @pytest.fixture()
@@ -119,11 +119,13 @@ def mock_document_download_response_one_page(one_page_pdf_bytes) -> Mock:
 
 
 @pytest.fixture
-def mock_document_download_response_sixty_six_page(sixty_six_page_pdf_bytes) -> Mock:
+def mock_document_download_response_sixty_eight_page(
+    sixty_eight_page_pdf_bytes,
+) -> Mock:
     """Create a mock response to a download request for a pdf document with one page."""
     # Create a mock Response object
     mock_response = Mock()
-    mock_response.content = sixty_six_page_pdf_bytes
+    mock_response.content = sixty_eight_page_pdf_bytes
 
     # Set the status code and other attributes as needed for your test
     mock_response.status_code = 200

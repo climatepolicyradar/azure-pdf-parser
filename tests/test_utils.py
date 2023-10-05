@@ -125,7 +125,9 @@ def test_merge_responses(one_page_analyse_result: AnalyzeResult) -> None:
 
 
 def test_split_into_batches(
-    one_page_pdf_bytes: bytes, two_page_pdf_bytes: bytes
+    one_page_pdf_bytes: bytes,
+    two_page_pdf_bytes: bytes,
+    sixty_eight_page_pdf_bytes: bytes,
 ) -> None:
     """Test that the PDF is split into batches correctly."""
     batches: list[PDFPagesBatch] = split_into_batches(
@@ -148,6 +150,24 @@ def test_split_into_batches(
     batches = split_into_batches(io.BytesIO(two_page_pdf_bytes), batch_size=2)
     assert len(batches) == 1
     assert batches[0].page_range == (1, 2)
+    for batch in batches:
+        assert is_valid_pdf(batch.batch_content)
+
+    batches = split_into_batches(io.BytesIO(sixty_eight_page_pdf_bytes), batch_size=1)
+    assert len(batches) == 68
+    assert batches[0].page_range == (1, 1)
+    assert batches[67].page_range == (68, 68)
+    for batch in batches:
+        assert is_valid_pdf(batch.batch_content)
+
+    batches = split_into_batches(io.BytesIO(sixty_eight_page_pdf_bytes), batch_size=12)
+    assert len(batches) == 6  # 68 / 12 = 5.6666 -> 6
+    assert batches[0].page_range == (1, 12)
+    assert batches[1].page_range == (13, 24)
+    assert batches[2].page_range == (25, 36)
+    assert batches[3].page_range == (37, 48)
+    assert batches[4].page_range == (49, 60)
+    assert batches[5].page_range == (61, 68)
     for batch in batches:
         assert is_valid_pdf(batch.batch_content)
 
