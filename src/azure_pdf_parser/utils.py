@@ -38,14 +38,21 @@ def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtract
 
     This is done by propagating the page number of the start index of the batch to the
     paragraphs and tables.
-    """
-    page_increment = batch.batch_number * batch.batch_size_max
 
+    Page number in the batch is incremented as follows:
+
+    [1,2,3,4] and a page range of 101-104 -> [101,102,103,104]
+    Thus, incremented page number = page number + batch.page_range[0] - 1
+
+    E.g.
+    - page number 1 in the batch is page number 101 in the document (1 + 101 - 1).
+    - page number 2 in the batch is page number 102 in the document (2 + 101 - 1).
+    """
     if batch.extracted_content.paragraphs:
         for paragraph in batch.extracted_content.paragraphs:
             if paragraph and paragraph.bounding_regions:
                 paragraph.bounding_regions[0].page_number = (
-                    paragraph.bounding_regions[0].page_number + page_increment
+                    paragraph.bounding_regions[0].page_number + batch.page_range[0] - 1
                 )
 
     if batch.extracted_content.tables:
@@ -54,13 +61,13 @@ def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtract
                 if cell and cell.bounding_regions:
                     for bounding_region in cell.bounding_regions:
                         bounding_region.page_number = (
-                            bounding_region.page_number + page_increment
+                            bounding_region.page_number + batch.page_range[0] - 1
                         )
 
             if table.bounding_regions:
                 for bounding_region in table.bounding_regions:
                     bounding_region.page_number = (
-                        bounding_region.page_number + page_increment
+                        bounding_region.page_number + batch.page_range[0] - 1
                     )
     return batch
 
