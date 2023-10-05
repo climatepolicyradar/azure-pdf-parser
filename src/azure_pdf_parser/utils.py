@@ -127,7 +127,7 @@ def split_into_batches(
     ]
 
     batches_with_bytes = []
-    for index, batch in enumerate(batches):
+    for batch_index, pages in enumerate(page_batches):
         # Create a new PDF writer object
         pdf_writer = PdfWriter()
 
