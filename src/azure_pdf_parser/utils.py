@@ -72,10 +72,9 @@ def propagate_page_number(batch: PDFPagesBatchExtracted) -> PDFPagesBatchExtract
                         bounding_region.page_number + page_offset
                     )
 
-    if batch.extracted_content.pages:
-        for page in batch.extracted_content.pages:
-            if page and page.page_number:
-                page.page_number = page.page_number + page_offset
+    for page in batch.extracted_content.pages:
+        if page and page.page_number:
+            page.page_number = page.page_number + page_offset
     return batch
 
 
@@ -103,8 +102,7 @@ def merge_responses(batches: Sequence[PDFPagesBatchExtracted]) -> AnalyzeResult:
             all_paragraphs.extend(batch.extracted_content.paragraphs)
         if batch.extracted_content.tables:
             all_tables.extend(batch.extracted_content.tables)
-        if batch.extracted_content.pages:
-            all_pages.extend(batch.extracted_content.pages)
+        all_pages.extend(batch.extracted_content.pages)
 
     # Copy the first result to a variable and add the content for all the pages.
     merged_analyse_result: AnalyzeResult = batches.pop(0).extracted_content
