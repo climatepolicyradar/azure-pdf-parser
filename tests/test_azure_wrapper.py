@@ -2,7 +2,12 @@ from typing import Sequence
 from unittest.mock import patch, Mock
 from azure.ai.formrecognizer import AnalyzeResult
 
-from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
+from azure_pdf_parser import (
+    AzureApiWrapper,
+    PDFPagesBatchExtracted,
+    azure_api_response_to_parser_output,
+)
+from cpr_data_access.parser_models import ParserInput
 from azure_pdf_parser.utils import call_api_with_error_handling
 
 
@@ -135,6 +140,7 @@ def test_document_split_sixty_eight_page(
     mock_azure_client_sixteen_page: AzureApiWrapper,
     sixteen_page_analyse_result: AnalyzeResult,
     mock_document_download_response_sixty_eight_page: Mock,
+    parser_input: ParserInput,
 ) -> None:
     """
     Test the processing of a document via url with the split page functionality.
@@ -168,3 +174,11 @@ def test_document_split_sixty_eight_page(
             assert page_api_response.extracted_content == sixteen_page_analyse_result
 
         assert isinstance(merged_page_api_responses, AnalyzeResult)
+
+        parser_output = azure_api_response_to_parser_output(
+            parser_input=parser_input,
+            md5_sum="123456",
+            api_response=merged_page_api_responses,
+        )
+
+        parser_output.vertically_flip_text_block_coords()
