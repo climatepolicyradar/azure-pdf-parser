@@ -25,6 +25,7 @@ empty_backend_document = BackendDocument(
     description="",
     import_id="",
     family_import_id="",
+    family_slug="",
     slug="",
     publication_ts=datetime(1900, 1, 1),
     source_url=None,
