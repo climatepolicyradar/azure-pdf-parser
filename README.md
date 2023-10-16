@@ -23,9 +23,12 @@ The CLI takes as input a directory of pdfs and outputs a directory of 'blank' pa
 2. Populate environment variables (see `.env.example`)
 3. Run the CLI: `poetry run python -m src.cli --pdf-dir <path to pdf directory> --output-dir <path to output directory>`
 
+To run the CLI with source urls use the following method:
+```shell
+poetry run python -m src.cli --output-dir output --source_urls cclw.executive.1.1 https://source.pdf
+```
 
-
-### Programatically
+### Programmatically
 
 Install dependencies and enter the python shell: 
 
