@@ -1,66 +1,123 @@
 import logging
 import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Union
 
-from dotenv import load_dotenv, find_dotenv
 import click
-from tqdm.auto import tqdm
+from azure.ai.formrecognizer import AnalyzeResult
 from azure.core.exceptions import HttpResponseError
-from cpr_data_access.parser_models import PDFData, ParserOutput, BackendDocument
+from cpr_data_access.parser_models import BackendDocument, ParserInput
+from dotenv import load_dotenv, find_dotenv
+from tqdm.auto import tqdm
 
 from src.azure_pdf_parser import AzureApiWrapper
-from src.azure_pdf_parser.convert import (
-    extract_azure_api_response_paragraphs,
-    extract_azure_api_response_page_metadata,
-)
+from src.azure_pdf_parser.convert import azure_api_response_to_parser_output
 
 LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
 
 AZURE_PROCESSOR_KEY = os.environ.get("AZURE_PROCESSOR_KEY")
 AZURE_PROCESSOR_ENDPOINT = os.environ.get("AZURE_PROCESSOR_ENDPOINT")
 
-empty_backend_document = BackendDocument(
-    name="",
-    description="",
-    import_id="",
-    family_import_id="",
-    family_slug="",
-    slug="",
-    publication_ts=datetime(1900, 1, 1),
-    source_url=None,
-    download_url=None,
-    type="",
-    source="",
-    category="",
-    geography="",
-    languages=[],
-    metadata={},
-)
+
+def process_document(
+    document_parameter: Union[str, bytes, None],
+    process_callable: callable,
+    process_callable_retry: callable,
+) -> Union[AnalyzeResult, None]:
+    """Attempt to retrieve an analyze result for a document."""
+    try:
+        return process_callable(document_parameter)
+    except HttpResponseError:
+        try:
+            return process_callable_retry(document_parameter)[1]
+        except Exception:
+            return None
+
+
+def convert_and_save_api_response(
+    import_id: str,
+    source_url: Union[str, None],
+    api_response: AnalyzeResult,
+    output_dir: Path,
+) -> None:
+    """Convert Azure API response to parser output and save to disk."""
+
+    backend_document = BackendDocument(
+        name="",
+        description="",
+        import_id=import_id,
+        family_import_id="",
+        family_slug="",
+        slug="",
+        publication_ts=datetime(1900, 1, 1),
+        source_url=source_url or "",
+        download_url=None,
+        type="",
+        source="",
+        category="",
+        geography="",
+        languages=[],
+        metadata={},
+    )
+
+    parser_input = ParserInput(
+        document_id=import_id,
+        document_name="",
+        document_description="",
+        document_source_url=source_url or "",
+        document_cdn_object="",
+        document_content_type="application/pdf",
+        document_md5_sum="",
+        document_slug="",
+        document_metadata=backend_document,
+    )
+
+    parser_output = azure_api_response_to_parser_output(
+        parser_input=parser_input,
+        md5_sum="",
+        api_response=api_response,
+        experimental_extract_tables=True,
+    )
+
+    (output_dir / f"{import_id}.json").write_text(parser_output.json())
+
+    LOGGER.info(f"Successfully processed and saved {import_id}.")
 
 
 @click.command()
 @click.option(
+    "--source-url",
+    help="Array of source urls with the associated document id to process.",
+    required=False,
+    multiple=True,
+    type=click.Tuple([str, str]),
+)
+@click.option(
     "--pdf-dir",
-    help="Path to directory containing pdfs to process.",
-    required=True,
+    help="Path to dir containing pdfs to process with document id's as filenames.",
+    required=False,
     type=click.Path(exists=True, file_okay=False, path_type=Path),
 )
 @click.option(
     "--output-dir",
-    help="""Path to directory to write output JSONs to. 
-    Filenames and document IDs are be the filenames of the PDFs without extensions.
-    Directory will be created if it doesn't exist.""",
+    help="""Path to directory to write output JSONs to. Filenames and document IDs are 
+    be the filenames of the PDFs without extensions. Directory will be created if it 
+    doesn't exist.""",
     required=True,
     type=click.Path(file_okay=False, path_type=Path),
 )
-def cli(pdf_dir: Path, output_dir: Path):
+def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
     """
     Run Azure PDF parser on a directory of PDFs.
 
     Outputs 'blank' parser output jsons to `--output-dir`, with just
     document ID, document name, text block and page metadata information populated.
     """
+    # TODO update once we pass in multiple source urls
+    source_urls = source_url
+
     load_dotenv(find_dotenv())
 
     if not output_dir.exists():
@@ -73,51 +130,44 @@ def cli(pdf_dir: Path, output_dir: Path):
             AZURE_PROCESSOR_ENDPOINT environment variables."""
         )
 
+    if not source_urls and not pdf_dir:
+        raise ValueError("""Must provide either source urls or pdf directory.""")
+
     azure_client = AzureApiWrapper(AZURE_PROCESSOR_KEY, AZURE_PROCESSOR_ENDPOINT)
 
-    for pdf_path in tqdm(list(pdf_dir.glob("*.pdf"))):
-        pdf_bytes = pdf_path.read_bytes()
-
-        try:
-            azure_response = azure_client.analyze_document_from_bytes(pdf_bytes)
-        except HttpResponseError:
-            LOGGER.error(
-                f"""Error processing {pdf_path.name} as short document. 
-                Trying again in individual pages."""
+    if source_urls:
+        for import_id, source_url in source_urls:
+            analyse_result = process_document(
+                document_parameter=source_url,
+                process_callable=azure_client.analyze_document_from_url,
+                process_callable_retry=azure_client.analyze_large_document_from_url,
             )
-            try:
-                _, azure_response = azure_client.analyze_large_document_from_bytes(
-                    pdf_bytes
-                )
-            except Exception:
-                LOGGER.error(
-                    f"Error processing {pdf_path.name} as individual pages. Skipping."
-                )
-                continue
 
-        text_blocks = extract_azure_api_response_paragraphs(azure_response)
-        page_metadata = extract_azure_api_response_page_metadata(azure_response)
+            if analyse_result:
+                convert_and_save_api_response(
+                    import_id=import_id,
+                    source_url=source_url,
+                    api_response=analyse_result,
+                    output_dir=output_dir,
+                )
+    if pdf_dir:
+        for pdf_path in tqdm(list(pdf_dir.glob("*.pdf"))):
+            pdf_bytes = pdf_path.read_bytes()
 
-        parser_output = (
-            ParserOutput(
-                document_id=pdf_path.stem,
-                document_name=pdf_path.stem,
-                document_cdn_object="",
-                document_content_type="application/pdf",
-                document_description="",
-                document_metadata=empty_backend_document,
-                document_md5_sum="",
-                document_slug="",
-                document_source_url="http://example.com",  # type: ignore
-                pdf_data=PDFData(
-                    text_blocks=text_blocks, page_metadata=page_metadata, md5sum=""
-                ),
+            analyse_result = process_document(
+                document_parameter=pdf_bytes,
+                process_callable=azure_client.analyze_document_from_bytes,
+                process_callable_retry=azure_client.analyze_large_document_from_bytes,
             )
-            .detect_and_set_languages()
-            .set_document_languages_from_text_blocks()
-        )
 
-        (output_dir / f"{pdf_path.stem}.json").write_text(parser_output.json())
+            if analyse_result:
+                # Source url cannot be None and must have a minimum length.
+                convert_and_save_api_response(
+                    import_id=pdf_path.stem,
+                    source_url="https://example.com/",
+                    api_response=analyse_result,
+                    output_dir=output_dir,
+                )
 
 
 if __name__ == "__main__":
