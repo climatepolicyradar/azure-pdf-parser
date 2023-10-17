@@ -1,8 +1,10 @@
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from click.testing import CliRunner
+from cpr_data_access.parser_models import ParserOutput
 
 from src.azure_pdf_parser import AzureApiWrapper
 
@@ -58,28 +60,30 @@ def test_cli_with_source_urls(
 
     with TemporaryDirectory() as temp_dir:
         output_dir = Path(temp_dir) / "output"
+        source_urls = ["https://example.com/", "https://example.com/"]
+        import_ids = ["CCLW.executive.1.1", "CCLW.executive.1.2"]
 
         # patch the azure client with mock
         with patch("src.cli.AzureApiWrapper", return_value=mock_azure_client):
-            source_urls = [
-                ("CCLW.executive.1.1", "https://example.com/"),
-                ("CCLW.executive.1.2", "https://example.com/"),
-            ]
-
-            # TODO: TO pass in multiple at once use the command: cli -m foo -m bar
-            for import_id, source_url in source_urls:
-                result = runner.invoke(
-                    cli,
-                    [
-                        "--output-dir",
-                        str(output_dir),
-                        "--source-url",
-                        import_id,
-                        source_url,
-                    ],
-                )
+            result = runner.invoke(
+                cli,
+                [
+                    "--output-dir",
+                    str(output_dir),
+                    "--source-url",
+                    import_ids[0],
+                    source_urls[0],
+                    "--source-url",
+                    import_ids[1],
+                    source_urls[1],
+                ],
+            )
 
         assert result.exit_code == 0
         assert (output_dir / "CCLW.executive.1.1.json").exists()
         assert (output_dir / "CCLW.executive.1.2.json").exists()
-        assert len(list(output_dir.glob("*.json"))) == 2
+        output_dir_files = output_dir.glob("*.json")
+        assert len(list(output_dir_files)) == 2
+        for file in output_dir_files:
+            parser_output = ParserOutput.parse_obj(json.loads(file.read_text()))
+            assert parser_output.document_id == file.stem

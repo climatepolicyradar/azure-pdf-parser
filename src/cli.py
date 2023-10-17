@@ -41,6 +41,7 @@ def convert_and_save_api_response(
     source_url: Union[str, None],
     api_response: AnalyzeResult,
     output_dir: Path,
+    extract_tables: bool = False,
 ) -> None:
     """Convert Azure API response to parser output and save to disk."""
 
@@ -78,7 +79,7 @@ def convert_and_save_api_response(
         parser_input=parser_input,
         md5_sum="",
         api_response=api_response,
-        experimental_extract_tables=True,
+        experimental_extract_tables=extract_tables,
     )
 
     (output_dir / f"{import_id}.json").write_text(parser_output.json())
@@ -108,7 +109,15 @@ def convert_and_save_api_response(
     required=True,
     type=click.Path(file_okay=False, path_type=Path),
 )
-def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
+@click.option(
+    "--extract-tables",
+    help="Whether to extract tables from the PDFs.",
+    is_flag=True,
+    default=False,
+)
+def cli(
+    source_url: tuple[str, str], pdf_dir: Path, output_dir: Path, extract_tables: bool
+) -> None:
     """
     Run Azure PDF parser on a directory of PDFs.
 
@@ -146,6 +155,7 @@ def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
                     source_url=url,
                     api_response=analyse_result,
                     output_dir=output_dir,
+                    extract_tables=extract_tables,
                 )
     if pdf_dir:
         for pdf_path in tqdm(list(pdf_dir.glob("*.pdf"))):
@@ -164,6 +174,7 @@ def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
                     source_url="https://example.com/",
                     api_response=analyse_result,
                     output_dir=output_dir,
+                    extract_tables=extract_tables,
                 )
 
 
