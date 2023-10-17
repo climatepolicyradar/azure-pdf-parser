@@ -6,7 +6,7 @@ authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
 packages = [{include = "azure_pdf_parser", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "~3.9"
+python = ">=3.9,<4.0"
 azure-ai-formrecognizer = "^3.2.1"
 cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git", tag = "v0.1.9"}
 requests = "^2.31.0"
