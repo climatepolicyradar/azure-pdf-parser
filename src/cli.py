@@ -2,13 +2,14 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 
 import click
 from azure.ai.formrecognizer import AnalyzeResult
 from azure.core.exceptions import HttpResponseError
 from cpr_data_access.parser_models import BackendDocument, ParserInput
 from dotenv import load_dotenv, find_dotenv
+from pydantic import AnyHttpUrl
 from tqdm.auto import tqdm
 
 from src.azure_pdf_parser import AzureApiWrapper
@@ -38,9 +39,9 @@ def process_document(
 
 def convert_and_save_api_response(
     import_id: str,
-    source_url: Union[str, None],
     api_response: AnalyzeResult,
     output_dir: Path,
+    source_url: Optional[str] = None,
     extract_tables: bool = False,
 ) -> None:
     """Convert Azure API response to parser output and save to disk."""
@@ -53,7 +54,7 @@ def convert_and_save_api_response(
         family_slug="",
         slug="",
         publication_ts=datetime(1900, 1, 1),
-        source_url=source_url or "",
+        source_url=source_url,
         download_url=None,
         type="",
         source="",
@@ -67,7 +68,7 @@ def convert_and_save_api_response(
         document_id=import_id,
         document_name="",
         document_description="",
-        document_source_url=source_url or "",
+        document_source_url=source_url,
         document_cdn_object="",
         document_content_type="application/pdf",
         document_md5_sum="",
@@ -93,7 +94,7 @@ def convert_and_save_api_response(
     help="Source url with the associated document id to process.",
     required=False,
     multiple=True,
-    type=click.Tuple([str, str]),
+    type=click.Tuple([str, AnyHttpUrl]),
 )
 @click.option(
     "--pdf-dir",
@@ -171,7 +172,6 @@ def cli(
                 # Source url cannot be None and must have a minimum length.
                 convert_and_save_api_response(
                     import_id=pdf_path.stem,
-                    source_url="https://example.com/",
                     api_response=analyse_result,
                     output_dir=output_dir,
                     extract_tables=extract_tables,
