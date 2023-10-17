@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Union, Callable, Optional
+from typing import Union, Callable, Optional, Iterable
 
 import click
 from azure.ai.formrecognizer import AnalyzeResult
@@ -87,36 +87,11 @@ def convert_and_save_api_response(
     LOGGER.info(f"Successfully processed and saved {import_id}.")
 
 
-@click.command()
-@click.option(
-    "--source-url",
-    help="Source url with the associated document id to process.",
-    required=False,
-    multiple=True,
-    type=click.Tuple([str, str]),
-)
-@click.option(
-    "--pdf-dir",
-    help="Path to dir containing pdfs to process with document id's as filenames.",
-    required=False,
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
-)
-@click.option(
-    "--output-dir",
-    help="""Path to directory to write output JSONs to. Filenames and document IDs are 
-    be the filenames of the PDFs without extensions. Directory will be created if it 
-    doesn't exist.""",
-    required=True,
-    type=click.Path(file_okay=False, path_type=Path),
-)
-@click.option(
-    "--extract-tables",
-    help="Whether to extract tables from the PDFs.",
-    is_flag=True,
-    default=False,
-)
-def cli(
-    source_url: tuple[str, str], pdf_dir: Path, output_dir: Path, extract_tables: bool
+def run_parser(
+    output_dir: Path,
+    source_url: Optional[Iterable[tuple[str, str]]] = None,
+    pdf_dir: Optional[Path] = None,
+    extract_tables: bool = False,
 ) -> None:
     """
     Run Azure PDF parser on a directory of PDFs.
@@ -175,6 +150,43 @@ def cli(
                     output_dir=output_dir,
                     extract_tables=extract_tables,
                 )
+
+
+@click.command()
+@click.option(
+    "--source-url",
+    help="Source url with the associated document id to process.",
+    required=False,
+    multiple=True,
+    type=click.Tuple([str, str]),
+)
+@click.option(
+    "--pdf-dir",
+    help="Path to dir containing pdfs to process with document id's as filenames.",
+    required=False,
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+)
+@click.option(
+    "--output-dir",
+    help="""Path to directory to write output JSONs to. Filenames and document IDs are 
+    be the filenames of the PDFs without extensions. Directory will be created if it 
+    doesn't exist.""",
+    required=True,
+    type=click.Path(file_okay=False, path_type=Path),
+)
+@click.option(
+    "--extract-tables",
+    help="Whether to extract tables from the PDFs.",
+    is_flag=True,
+    default=False,
+)
+def cli(
+    source_url: Optional[Iterable[tuple[str, str]]],
+    pdf_dir: Optional[Path],
+    output_dir: Path,
+    extract_tables: bool,
+) -> None:
+    return run_parser(output_dir, source_url, pdf_dir, extract_tables)
 
 
 if __name__ == "__main__":
