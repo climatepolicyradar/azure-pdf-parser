@@ -25,7 +25,12 @@ The CLI takes as input a directory of pdfs and outputs a directory of 'blank' pa
 
 To run the CLI with source urls use the following method:
 ```shell
-poetry run python -m src.cli --output-dir output --source_urls cclw.executive.1.1 https://source.pdf
+poetry run python -m src.cli --output-dir output --source_url cclw.executive.1.1 https://source.pdf
+```
+
+To run the CLI with source urls on multiple documents use the following method: 
+```shell
+poetry run python -m src.cli --output-dir output --source_url cclw.executive.1.1 https://source.pdf --source_url cclw.executive.2.2 https://source.pdf
 ```
 
 ### Programmatically

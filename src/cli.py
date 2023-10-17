@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Union
+from typing import Union, Callable
 
 import click
 from azure.ai.formrecognizer import AnalyzeResult
@@ -23,8 +23,8 @@ AZURE_PROCESSOR_ENDPOINT = os.environ.get("AZURE_PROCESSOR_ENDPOINT")
 
 def process_document(
     document_parameter: Union[str, bytes, None],
-    process_callable: callable,
-    process_callable_retry: callable,
+    process_callable: Callable,
+    process_callable_retry: Callable,
 ) -> Union[AnalyzeResult, None]:
     """Attempt to retrieve an analyze result for a document."""
     try:
@@ -89,7 +89,7 @@ def convert_and_save_api_response(
 @click.command()
 @click.option(
     "--source-url",
-    help="Array of source urls with the associated document id to process.",
+    help="Source url with the associated document id to process.",
     required=False,
     multiple=True,
     type=click.Tuple([str, str]),
@@ -115,9 +115,6 @@ def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
     Outputs 'blank' parser output jsons to `--output-dir`, with just
     document ID, document name, text block and page metadata information populated.
     """
-    # TODO update once we pass in multiple source urls
-    source_urls = source_url
-
     load_dotenv(find_dotenv())
 
     if not output_dir.exists():
@@ -130,15 +127,15 @@ def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
             AZURE_PROCESSOR_ENDPOINT environment variables."""
         )
 
-    if not source_urls and not pdf_dir:
+    if not source_url and not pdf_dir:
         raise ValueError("""Must provide either source urls or pdf directory.""")
 
     azure_client = AzureApiWrapper(AZURE_PROCESSOR_KEY, AZURE_PROCESSOR_ENDPOINT)
 
-    if source_urls:
-        for import_id, source_url in source_urls:
+    if source_url:
+        for import_id, url in source_url:
             analyse_result = process_document(
-                document_parameter=source_url,
+                document_parameter=url,
                 process_callable=azure_client.analyze_document_from_url,
                 process_callable_retry=azure_client.analyze_large_document_from_url,
             )
@@ -146,7 +143,7 @@ def cli(source_url: tuple[str, str], pdf_dir: Path, output_dir: Path):
             if analyse_result:
                 convert_and_save_api_response(
                     import_id=import_id,
-                    source_url=source_url,
+                    source_url=url,
                     api_response=analyse_result,
                     output_dir=output_dir,
                 )
