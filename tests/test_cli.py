@@ -104,7 +104,7 @@ def test_cli_importable(mock_azure_client, monkeypatch):
         with patch("src.cli.AzureApiWrapper", return_value=mock_azure_client):
             run_parser(
                 output_dir=output_dir,
-                source_url=zip(import_ids, source_urls),
+                ids_and_source_urls=zip(import_ids, source_urls),
             )
 
         assert (output_dir / "CCLW.executive.1.1.json").exists()

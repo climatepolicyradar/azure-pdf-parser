@@ -89,15 +89,22 @@ def convert_and_save_api_response(
 
 def run_parser(
     output_dir: Path,
-    source_url: Optional[Iterable[tuple[str, str]]] = None,
+    ids_and_source_urls: Optional[Iterable[tuple[str, str]]] = None,
     pdf_dir: Optional[Path] = None,
-    extract_tables: bool = False,
+    experimental_extract_tables: bool = False,
 ) -> None:
     """
-    Run Azure PDF parser on a directory of PDFs.
+    Run Azure PDF parser on a directory of PDFs, or sequence of IDs and source URLs.
 
-    Outputs 'blank' parser output jsons to `--output-dir`, with just
-    document ID, document name, text block and page metadata information populated.
+    Outputs 'blank' parser output jsons to `--output-dir`, with just document ID,
+    document name, text block and page metadata information populated.
+
+    :param output_dir: directory to write output JSONs to
+    :param ids_and_source_urls: optional iterable of [(document ID, source URL), ...].
+    :param pdf_dir: optional directory of PDFs to parse. Filenames will be used as IDs.
+    :param extract_tables: optionally extract structured representations of tables.
+    :raises ValueError: if neither source_url or pdf_dir are provided, or if Azure
+    API keys are missing from environment variables.
     """
     load_dotenv(find_dotenv())
 
@@ -111,13 +118,13 @@ def run_parser(
             AZURE_PROCESSOR_ENDPOINT environment variables."""
         )
 
-    if not source_url and not pdf_dir:
+    if not ids_and_source_urls and not pdf_dir:
         raise ValueError("""Must provide either source urls or pdf directory.""")
 
     azure_client = AzureApiWrapper(AZURE_PROCESSOR_KEY, AZURE_PROCESSOR_ENDPOINT)
 
-    if source_url:
-        for import_id, url in source_url:
+    if ids_and_source_urls:
+        for import_id, url in ids_and_source_urls:
             analyse_result = process_document(
                 document_parameter=url,
                 process_callable=azure_client.analyze_document_from_url,
@@ -130,7 +137,7 @@ def run_parser(
                     source_url=url,
                     api_response=analyse_result,
                     output_dir=output_dir,
-                    extract_tables=extract_tables,
+                    extract_tables=experimental_extract_tables,
                 )
     if pdf_dir:
         for pdf_path in tqdm(list(pdf_dir.glob("*.pdf"))):
@@ -148,14 +155,14 @@ def run_parser(
                     import_id=pdf_path.stem,
                     api_response=analyse_result,
                     output_dir=output_dir,
-                    extract_tables=extract_tables,
+                    extract_tables=experimental_extract_tables,
                 )
 
 
 @click.command()
 @click.option(
-    "--source-url",
-    help="Source url with the associated document id to process.",
+    "--id-and-source-url",
+    help="Document ID and source url tuple to process.",
     required=False,
     multiple=True,
     type=click.Tuple([str, str]),
@@ -175,18 +182,20 @@ def run_parser(
     type=click.Path(file_okay=False, path_type=Path),
 )
 @click.option(
-    "--extract-tables",
-    help="Whether to extract tables from the PDFs.",
+    "--experimental-extract-tables",
+    help="Whether to extract tables from the PDFs. (WARNING: EXPERIMENTAL)",
     is_flag=True,
     default=False,
 )
 def cli(
-    source_url: Optional[Iterable[tuple[str, str]]],
+    id_and_source_url: Optional[Iterable[tuple[str, str]]],
     pdf_dir: Optional[Path],
     output_dir: Path,
-    extract_tables: bool,
+    experimental_extract_tables: bool,
 ) -> None:
-    return run_parser(output_dir, source_url, pdf_dir, extract_tables)
+    return run_parser(
+        output_dir, id_and_source_url, pdf_dir, experimental_extract_tables
+    )
 
 
 if __name__ == "__main__":
