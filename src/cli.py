@@ -9,7 +9,6 @@ from azure.ai.formrecognizer import AnalyzeResult
 from azure.core.exceptions import HttpResponseError
 from cpr_data_access.parser_models import BackendDocument, ParserInput
 from dotenv import load_dotenv, find_dotenv
-from pydantic import AnyHttpUrl
 from tqdm.auto import tqdm
 
 from src.azure_pdf_parser import AzureApiWrapper
@@ -94,7 +93,7 @@ def convert_and_save_api_response(
     help="Source url with the associated document id to process.",
     required=False,
     multiple=True,
-    type=click.Tuple([str, AnyHttpUrl]),
+    type=click.Tuple([str, str]),
 )
 @click.option(
     "--pdf-dir",
