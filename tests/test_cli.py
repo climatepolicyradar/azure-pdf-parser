@@ -70,10 +70,10 @@ def test_cli_with_source_urls(
                 [
                     "--output-dir",
                     str(output_dir),
-                    "--source-url",
+                    "--id-and-source-url",
                     import_ids[0],
                     source_urls[0],
-                    "--source-url",
+                    "--id-and-source-url",
                     import_ids[1],
                     source_urls[1],
                 ],
