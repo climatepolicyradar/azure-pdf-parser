@@ -22,7 +22,6 @@ def test_cli(
 
     # Note: import needed here so that the monkeypatch works, otherwise the
     # environment variables are retrieved before the monkeypatch is applied.
-    from src.cli import cli
 
     with TemporaryDirectory() as temp_dir:
         pdf_dir = Path(temp_dir)
@@ -32,7 +31,9 @@ def test_cli(
         output_dir = Path(temp_dir) / "output"
 
         # patch the azure client with mock
-        with patch("src.cli.AzureApiWrapper", return_value=mock_azure_client):
+        with patch("azure_pdf_parser.AzureApiWrapper", return_value=mock_azure_client):
+            from src.cli import cli
+
             result = runner.invoke(
                 cli, ["--pdf-dir", str(pdf_dir), "--output-dir", str(output_dir)]
             )
@@ -56,7 +57,6 @@ def test_cli_with_source_urls(
 
     # Note: import needed here so that the monkeypatch works, otherwise the
     # environment variables are retrieved before the monkeypatch is applied.
-    from src.cli import cli
 
     with TemporaryDirectory() as temp_dir:
         output_dir = Path(temp_dir) / "output"
@@ -64,7 +64,9 @@ def test_cli_with_source_urls(
         import_ids = ["CCLW.executive.1.1", "CCLW.executive.1.2"]
 
         # patch the azure client with mock
-        with patch("src.cli.AzureApiWrapper", return_value=mock_azure_client):
+        with patch("azure_pdf_parser.AzureApiWrapper", return_value=mock_azure_client):
+            from src.cli import cli
+
             result = runner.invoke(
                 cli,
                 [
@@ -90,8 +92,6 @@ def test_cli_with_source_urls(
 
 
 def test_cli_importable(mock_azure_client, monkeypatch):
-    from src.cli import run_parser
-
     monkeypatch.setenv("AZURE_PROCESSOR_KEY", "hello")
     monkeypatch.setenv("AZURE_PROCESSOR_ENDPOINT", "https://example.com/")
 
@@ -101,7 +101,9 @@ def test_cli_importable(mock_azure_client, monkeypatch):
         import_ids = ["CCLW.executive.1.1", "CCLW.executive.1.2"]
 
         # patch the azure client with mock
-        with patch("src.cli.AzureApiWrapper", return_value=mock_azure_client):
+        with patch("azure_pdf_parser.AzureApiWrapper", return_value=mock_azure_client):
+            from src.cli import run_parser
+
             run_parser(
                 output_dir=output_dir,
                 ids_and_source_urls=zip(import_ids, source_urls),
