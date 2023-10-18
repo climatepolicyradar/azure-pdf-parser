@@ -81,6 +81,13 @@ def test_merge_responses_one_page_results(
     one_page_analyse_result: AnalyzeResult,
 ) -> None:
     """Test that the responses are merged correctly."""
+    # The one_page_analyse_result test data has empty values for these fields, and thus
+    # we need to set values for them to assert that they don't persist in the merged
+    # result.
+    one_page_analyse_result.documents = ["test_document"]
+    one_page_analyse_result.languages = ["test_language"]
+    one_page_analyse_result.styles = ["test_style"]
+
     api_responses = [
         PDFPagesBatchExtracted(
             page_range=(1, 1),
@@ -115,9 +122,9 @@ def test_merge_responses_one_page_results(
     assert isinstance(merged_api_response, AnalyzeResult)
     assert merged_api_response.api_version == one_page_analyse_result.api_version
     assert merged_api_response.model_id == one_page_analyse_result.model_id
-    assert merged_api_response.languages == one_page_analyse_result.languages
-    assert merged_api_response.styles == one_page_analyse_result.styles
-    assert merged_api_response.documents == one_page_analyse_result.documents
+    assert merged_api_response.languages != one_page_analyse_result.languages
+    assert merged_api_response.styles != one_page_analyse_result.styles
+    assert merged_api_response.documents != one_page_analyse_result.documents
 
     # Check that the number of paragraphs and tables is correct
     assert merged_api_response.paragraphs is not None
@@ -164,9 +171,9 @@ def test_merge_api_responses_sixteen_page_results(
     assert isinstance(merged_api_response, AnalyzeResult)
     assert merged_api_response.api_version == sixteen_page_analyse_result.api_version
     assert merged_api_response.model_id == sixteen_page_analyse_result.model_id
-    assert merged_api_response.languages == sixteen_page_analyse_result.languages
-    assert merged_api_response.styles == sixteen_page_analyse_result.styles
-    assert merged_api_response.documents == sixteen_page_analyse_result.documents
+    assert merged_api_response.languages != sixteen_page_analyse_result.languages
+    assert merged_api_response.styles != sixteen_page_analyse_result.styles
+    assert merged_api_response.documents != sixteen_page_analyse_result.documents
 
     # Check that the number of paragraphs and tables is correct
     assert merged_api_response.paragraphs is not None
