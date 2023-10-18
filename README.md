@@ -33,6 +33,18 @@ To run the CLI with source urls on multiple documents use the following method:
 poetry run python -m src.cli --output-dir output --source_url cclw.executive.1.1 https://source.pdf --source_url cclw.executive.2.2 https://source.pdf
 ```
 
+The CLI can also be run programmatically, which is a shortcut for the below.
+
+``` python
+from azure_pdf_parser.run import run_parser
+
+# Saves JSONs named by IDs to output_dir
+run_parser(
+    output_dir=Path("./data/"),
+    ids_and_source_urls=_ids_and_urls, # (id, url) tuples
+)
+```
+
 ### Programmatically
 
 Install dependencies and enter the python shell: 
