@@ -104,8 +104,9 @@ def merge_responses(batches: Sequence[PDFPagesBatchExtracted]) -> AnalyzeResult:
             all_tables.extend(batch.extracted_content.tables)
         all_pages.extend(batch.extracted_content.pages)
 
-    # Copy the first result to a variable and add the content for all the pages.
-    merged_analyse_result: AnalyzeResult = batches.pop(0).extracted_content
+    merged_analyse_result = AnalyzeResult()
+    merged_analyse_result.api_version = batches[0].extracted_content.api_version
+    merged_analyse_result.model_id = batches[0].extracted_content.model_id
     merged_analyse_result.paragraphs = all_paragraphs
     merged_analyse_result.tables = all_tables
     merged_analyse_result.pages = all_pages
