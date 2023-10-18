@@ -81,6 +81,9 @@ def test_merge_responses_one_page_results(
     one_page_analyse_result: AnalyzeResult,
 ) -> None:
     """Test that the responses are merged correctly."""
+    # The one_page_analyse_result test data has empty values for these fields, and thus
+    # we need to set values for them to assert that they don't persist in the merged
+    # result.
     one_page_analyse_result.documents = ["test_document"]
     one_page_analyse_result.languages = ["test_language"]
     one_page_analyse_result.styles = ["test_style"]
