@@ -10,8 +10,8 @@ from azure.ai.formrecognizer import AnalyzeResult, DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
 from azure.core.polling import LROPoller
 
-from .utils import split_into_pages, merge_responses
-from .base import PDFPage
+from .utils import split_into_batches, merge_responses
+from .base import PDFPagesBatchExtracted
 from .utils import call_api_with_error_handling
 
 logger = logging.getLogger(__name__)
@@ -62,8 +62,11 @@ class AzureApiWrapper:
         return poller.result(timeout=timeout)
 
     def analyze_large_document_from_url(
-        self, doc_url: str, timeout: Optional[Union[int, None]] = None
-    ) -> Tuple[Sequence[PDFPage], AnalyzeResult]:
+        self,
+        doc_url: str,
+        timeout: Optional[Union[int, None]] = None,
+        batch_size: Optional[int] = None,
+    ) -> Tuple[Sequence[PDFPagesBatchExtracted], AnalyzeResult]:
         """Analyze a large pdf document (>1500 pages) accessible by an endpoint."""
         logger.info(
             "Analyzing large document from url by splitting into individual pages...",
@@ -75,43 +78,54 @@ class AzureApiWrapper:
         if resp.status_code != 200:
             resp.raise_for_status()
 
-        pages_dict = split_into_pages(document_bytes=BytesIO(resp.content))
+        batches = split_into_batches(
+            document_bytes=BytesIO(resp.content), batch_size=batch_size
+        )
 
         page_api_responses = [
-            PDFPage(
-                page_number=page_num,
+            PDFPagesBatchExtracted(
+                page_range=batch.page_range,
                 extracted_content=call_api_with_error_handling(
                     func=self.analyze_document_from_bytes,
                     retries=3,
-                    doc_bytes=page_bytes,
+                    doc_bytes=batch.batch_content,
                     timeout=timeout,
                 ),
+                batch_number=batch.batch_number,
+                batch_size_max=batch.batch_size_max,
             )
-            for page_num, page_bytes in pages_dict.items()
+            for batch in batches
         ]
 
         return page_api_responses, merge_responses(page_api_responses)
 
     def analyze_large_document_from_bytes(
-        self, doc_bytes: bytes, timeout: Optional[Union[int, None]] = None
-    ) -> Tuple[Sequence[PDFPage], AnalyzeResult]:
+        self,
+        doc_bytes: bytes,
+        timeout: Optional[Union[int, None]] = None,
+        batch_size: Optional[int] = None,
+    ) -> Tuple[Sequence[PDFPagesBatchExtracted], AnalyzeResult]:
         """Analyze a large pdf document (>1500 pages) in the bytes form."""
         logger.info(
             "Analyzing large document from bytes by splitting into individual pages...",
             extra={"props": {"bytes_size": sys.getsizeof(doc_bytes)}},
         )
-        pages = split_into_pages(document_bytes=io.BytesIO(doc_bytes))
+        batches = split_into_batches(
+            document_bytes=io.BytesIO(doc_bytes), batch_size=batch_size
+        )
         page_api_responses = [
-            PDFPage(
-                page_number=page_num,
+            PDFPagesBatchExtracted(
+                page_range=batch.page_range,
                 extracted_content=call_api_with_error_handling(
                     func=self.analyze_document_from_bytes,
                     retries=3,
-                    doc_bytes=page_bytes,
+                    doc_bytes=batch.batch_content,
                     timeout=timeout,
                 ),
+                batch_number=batch.batch_number,
+                batch_size_max=batch.batch_size_max,
             )
-            for page_num, page_bytes in pages.items()
+            for batch in batches
         ]
 
         return page_api_responses, merge_responses(page_api_responses)
