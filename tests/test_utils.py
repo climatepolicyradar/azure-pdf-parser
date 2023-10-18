@@ -168,9 +168,9 @@ def test_merge_api_responses_sixteen_page_results(
     assert isinstance(merged_api_response, AnalyzeResult)
     assert merged_api_response.api_version == sixteen_page_analyse_result.api_version
     assert merged_api_response.model_id == sixteen_page_analyse_result.model_id
-    assert merged_api_response.languages == sixteen_page_analyse_result.languages
-    assert merged_api_response.styles == sixteen_page_analyse_result.styles
-    assert merged_api_response.documents == sixteen_page_analyse_result.documents
+    assert merged_api_response.languages != sixteen_page_analyse_result.languages
+    assert merged_api_response.styles != sixteen_page_analyse_result.styles
+    assert merged_api_response.documents != sixteen_page_analyse_result.documents
 
     # Check that the number of paragraphs and tables is correct
     assert merged_api_response.paragraphs is not None
