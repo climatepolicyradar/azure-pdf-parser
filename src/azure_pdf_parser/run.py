@@ -16,6 +16,8 @@ from azure_pdf_parser.convert import azure_api_response_to_parser_output
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 
+load_dotenv(find_dotenv())
+
 AZURE_PROCESSOR_KEY = os.environ.get("AZURE_PROCESSOR_KEY")
 AZURE_PROCESSOR_ENDPOINT = os.environ.get("AZURE_PROCESSOR_ENDPOINT")
 
@@ -105,7 +107,6 @@ def run_parser(
     :raises ValueError: if neither source_url or pdf_dir are provided, or if Azure
     API keys are missing from environment variables.
     """
-    load_dotenv(find_dotenv())
 
     if not output_dir.exists():
         LOGGER.warning(f"Output directory {output_dir} does not exist. Creating.")
