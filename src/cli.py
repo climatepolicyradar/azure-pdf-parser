@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 from typing import Optional, Iterable
 
@@ -9,9 +8,6 @@ from azure_pdf_parser.run import run_parser
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
-
-AZURE_PROCESSOR_KEY = os.environ.get("AZURE_PROCESSOR_KEY")
-AZURE_PROCESSOR_ENDPOINT = os.environ.get("AZURE_PROCESSOR_ENDPOINT")
 
 
 @click.command()
