@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Union, Callable, Optional, Iterable
+import json
 
 from azure.ai.formrecognizer import AnalyzeResult
 from azure.core.exceptions import HttpResponseError
@@ -92,6 +93,7 @@ def run_parser(
     output_dir: Path,
     ids_and_source_urls: Optional[Iterable[tuple[str, str]]] = None,
     pdf_dir: Optional[Path] = None,
+    save_raw_azure_response: bool = False,
     experimental_extract_tables: bool = False,
 ) -> None:
     """
@@ -103,6 +105,7 @@ def run_parser(
     :param output_dir: directory to write output JSONs to
     :param ids_and_source_urls: optional iterable of [(document ID, source URL), ...].
     :param pdf_dir: optional directory of PDFs to parse. Filenames will be used as IDs.
+    :param save_raw_azure_response: optionally save raw Azure API response to disk.
     :param extract_tables: optionally extract structured representations of tables.
     :raises ValueError: if neither source_url or pdf_dir are provided, or if Azure
     API keys are missing from environment variables.
@@ -148,6 +151,11 @@ def run_parser(
                 process_callable=azure_client.analyze_document_from_bytes,
                 process_callable_retry=azure_client.analyze_large_document_from_bytes,
             )
+
+            if analyse_result and save_raw_azure_response:
+                (output_dir / f"{pdf_path.stem}_raw.json").write_text(
+                    json.dumps(analyse_result.to_dict())
+                )
 
             if analyse_result:
                 # Source url cannot be None and must have a minimum length.
