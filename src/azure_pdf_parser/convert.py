@@ -208,10 +208,13 @@ def get_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]]:
 
     This is represented as a tuple of (length, offset).
     """
+    if api_response.tables is None:
+        return set()
+
     return {
         (cell.spans[0].length, cell.spans[0].offset)
         for table in api_response.tables
-        for cell in table
+        for cell in table.cells
     }
 
 
@@ -221,6 +224,8 @@ def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
 
     This is done using the span of the content.
     """
+    if api_response.paragraphs is None:
+        return api_response
 
     table_cell_spans = get_table_cell_spans(api_response)
 
@@ -230,7 +235,7 @@ def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
     for paragraph in api_response.paragraphs:
         paragraph_span = (paragraph.spans[0].length, paragraph.spans[0].offset)
         if paragraph_span in table_cell_spans:
-            paragraph.role = BlockType.TABLE_TEXT.value
+            paragraph.role = BlockType.TABLE_CELL.value
 
     return api_response
 
