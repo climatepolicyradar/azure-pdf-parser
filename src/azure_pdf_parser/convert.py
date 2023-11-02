@@ -202,7 +202,7 @@ def extract_azure_api_response_page_metadata(
     return pdf_page_metadata
 
 
-def get_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]]:
+def get_all_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]]:
     """
     Retrieve the spans from all the table cells in the api response.
 
@@ -227,7 +227,7 @@ def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
     if api_response.paragraphs is None:
         return api_response
 
-    table_cell_spans = get_table_cell_spans(api_response)
+    table_cell_spans = get_all_table_cell_spans(api_response)
 
     # TODO: Could reduce time here with some check here whether the paragraph span is
     #  outside of the range of the min and max of the the table spans (this would
