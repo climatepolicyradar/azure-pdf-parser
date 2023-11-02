@@ -1,12 +1,20 @@
 import unittest
+from typing import Sequence, Tuple
 
 from azure.ai.formrecognizer import (
     Point,
     DocumentParagraph,
     DocumentTable,
     AnalyzeResult,
+    DocumentSpan,
+    DocumentTableCell,
 )
-from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
+from cpr_data_access.parser_models import (
+    PDFTextBlock,
+    ParserInput,
+    ParserOutput,
+    BlockType,
+)
 
 from azure_pdf_parser.base import DIMENSION_CONVERSION_FACTOR
 from azure_pdf_parser.experimental_base import (
@@ -19,6 +27,8 @@ from azure_pdf_parser.convert import (
     azure_paragraph_to_text_block,
     azure_table_to_table_block,
     azure_api_response_to_parser_output,
+    get_table_cell_spans,
+    tag_table_paragraphs,
 )
 
 
@@ -166,3 +176,73 @@ def test_azure_api_response_to_parser_output(
     )
     assert isinstance(parser_output, ParserOutput)
     parser_output.vertically_flip_text_block_coords().get_text_blocks()
+
+
+def test_get_table_cell_spans(
+    anaylze_result_known_table_content: Tuple[
+        AnalyzeResult,
+        Sequence[DocumentParagraph],
+        Sequence[DocumentTableCell],
+        Sequence[DocumentSpan],
+    ]
+) -> None:
+    """Test that we can get the cell spans from a table block."""
+    # Get the input data
+    (
+        one_page_analyse_result,
+        paragraphs_with_table_spans,
+        cells,
+        spans,
+    ) = anaylze_result_known_table_content
+
+    # Get the table spans
+    table_spans = get_table_cell_spans(one_page_analyse_result)
+
+    # Check the output
+    assert len(table_spans) > 0
+    assert len(table_spans) == len(spans)
+    assert table_spans == set([(span.offset, span.length) for span in spans])
+
+    assert isinstance(table_spans, set)
+    for span in table_spans:
+        assert isinstance(span, tuple)
+        assert len(span) == 2
+        for span_val in span:
+            assert isinstance(span_val, int)
+
+
+def test_tag_table_paragraphs(
+    anaylze_result_known_table_content: Tuple[
+        AnalyzeResult,
+        Sequence[DocumentParagraph],
+        Sequence[DocumentTableCell],
+        Sequence[DocumentSpan],
+    ]
+) -> None:
+    """Test that we can successfully tag the paragraphs that are of the type table."""
+    # Get the input data
+    (
+        one_page_analyse_result,
+        paragraphs_with_table_spans,
+        cells,
+        spans,
+    ) = anaylze_result_known_table_content
+
+    # Tag the table paragraphs
+    analyse_result = tag_table_paragraphs(one_page_analyse_result)
+
+    # Check the output
+    table_paragraphs = [
+        paragraph
+        for paragraph in analyse_result.paragraphs
+        if paragraph.role == BlockType.TABLE_CELL.value
+    ]
+
+    assert len(table_paragraphs) > 0
+    assert len(table_paragraphs) == len(paragraphs_with_table_spans)
+    assert table_paragraphs == paragraphs_with_table_spans
+
+    table_paragraph_spans = [paragraph.spans[0] for paragraph in table_paragraphs]
+    assert len(table_paragraph_spans) > 0
+    assert len(table_paragraph_spans) == len(spans)
+    assert table_paragraph_spans == spans
