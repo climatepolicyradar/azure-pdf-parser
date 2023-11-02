@@ -229,9 +229,6 @@ def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
 
     table_cell_spans = get_all_table_cell_spans(api_response)
 
-    # TODO: Could reduce time here with some check here whether the paragraph span is
-    #  outside of the range of the min and max of the the table spans (this would
-    #  require individual 'windows' of spans for each table)
     for paragraph in api_response.paragraphs:
         paragraph_span = (paragraph.spans[0].length, paragraph.spans[0].offset)
         if paragraph_span in table_cell_spans:
