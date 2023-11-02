@@ -189,26 +189,19 @@ def test_get_table_cell_spans(
     """Test that we can get the cell spans from a table block."""
     # Get the input data
     (
-        one_page_analyse_result,
+        analyse_result,
         paragraphs_with_table_spans,
         cells,
         spans,
     ) = anaylze_result_known_table_content
 
     # Get the table spans
-    table_spans = get_all_table_cell_spans(one_page_analyse_result)
+    table_spans = get_all_table_cell_spans(analyse_result)
 
     # Check the output
     assert len(table_spans) > 0
     assert len(table_spans) == len(spans)
     assert table_spans == set([(span.offset, span.length) for span in spans])
-
-    assert isinstance(table_spans, set)
-    for span in table_spans:
-        assert isinstance(span, tuple)
-        assert len(span) == 2
-        for span_val in span:
-            assert isinstance(span_val, int)
 
 
 def test_tag_table_paragraphs(
@@ -222,19 +215,19 @@ def test_tag_table_paragraphs(
     """Test that we can successfully tag the paragraphs that are of the type table."""
     # Get the input data
     (
-        one_page_analyse_result,
+        analyse_result,
         paragraphs_with_table_spans,
         cells,
         spans,
     ) = anaylze_result_known_table_content
 
     # Tag the table paragraphs
-    analyse_result = tag_table_paragraphs(one_page_analyse_result)
+    analyse_result_tagged = tag_table_paragraphs(analyse_result)
 
     # Check the output
     table_paragraphs = [
         paragraph
-        for paragraph in analyse_result.paragraphs
+        for paragraph in analyse_result_tagged.paragraphs
         if paragraph.role == BlockType.TABLE_CELL.value
     ]
 
