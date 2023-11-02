@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from typing import Sequence, Union, Set, Tuple
 import logging
 
 from azure.ai.formrecognizer import (
@@ -14,6 +14,7 @@ from cpr_data_access.parser_models import (
     PDFPageMetadata,
     ParserInput,
     CONTENT_TYPE_PDF,
+    BlockType,
 )
 
 from .base import DIMENSION_CONVERSION_FACTOR
@@ -201,6 +202,44 @@ def extract_azure_api_response_page_metadata(
     return pdf_page_metadata
 
 
+def get_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]]:
+    """
+    Retrieve the spans from all the table cells in the api response.
+
+    This is represented as a tuple of (length, offset).
+    """
+    if api_response.tables is None:
+        return set()
+
+    return {
+        (cell.spans[0].length, cell.spans[0].offset)
+        for table in api_response.tables
+        for cell in table.cells
+    }
+
+
+def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
+    """
+    Table the paragraphs that contain data from a Table with the type table-text.
+
+    This is done using the span of the content.
+    """
+    if api_response.paragraphs is None:
+        return api_response
+
+    table_cell_spans = get_table_cell_spans(api_response)
+
+    # TODO: Could reduce time here with some check here whether the paragraph span is
+    #  outside of the range of the min and max of the the table spans (this would
+    #  require individual 'windows' of spans for each table)
+    for paragraph in api_response.paragraphs:
+        paragraph_span = (paragraph.spans[0].length, paragraph.spans[0].offset)
+        if paragraph_span in table_cell_spans:
+            paragraph.role = BlockType.TABLE_CELL.value
+
+    return api_response
+
+
 def azure_api_response_to_parser_output(
     parser_input: ParserInput,
     md5_sum: str,
@@ -226,6 +265,7 @@ def azure_api_response_to_parser_output(
     if parser_input.document_content_type != CONTENT_TYPE_PDF:
         raise ValueError("Document content type must be PDF.")
 
+    api_response = tag_table_paragraphs(api_response)
     text_blocks = extract_azure_api_response_paragraphs(api_response)
     page_metadata = extract_azure_api_response_page_metadata(api_response)
 
