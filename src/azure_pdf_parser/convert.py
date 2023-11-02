@@ -127,7 +127,6 @@ def azure_table_to_table_block(
                     )
                 ],
             )
-            # TODO tidy this up and think about it properly
             for cell in table.cells
             if (
                 cell.bounding_regions is not None
