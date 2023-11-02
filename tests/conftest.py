@@ -1,7 +1,14 @@
+from typing import Tuple, Sequence
 from unittest.mock import MagicMock, Mock
 
 import pytest
-from azure.ai.formrecognizer import AnalyzeResult, DocumentParagraph, DocumentTable
+from azure.ai.formrecognizer import (
+    AnalyzeResult,
+    DocumentParagraph,
+    DocumentTable,
+    DocumentSpan,
+    DocumentTableCell,
+)
 from cpr_data_access.parser_models import ParserInput
 
 from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
@@ -221,3 +228,63 @@ def pdf_page(one_page_analyse_result) -> PDFPagesBatchExtracted:
         batch_number=122,
         batch_size_max=1,
     )
+
+
+@pytest.fixture
+def anaylze_result_known_table_content(
+    one_page_analyse_result,
+) -> Tuple[
+    AnalyzeResult,
+    Sequence[DocumentParagraph],
+    Sequence[DocumentTableCell],
+    Sequence[DocumentSpan],
+]:
+    """
+    Create an analyze result with the known table content.
+
+    We create known table cells with particular span content as well as paragraphs in
+    the analyze result with the same spans. This means that when tagging the
+    paragraphs we have an object where we know which paragraphs should be tagged with
+    the relevant table block type.
+    """
+    # Create the spans
+    spans = [DocumentSpan(offset=i, length=i) for i in range(1, 10)]
+
+    # Create the cells
+    cells = [
+        DocumentTableCell(
+            bounding_regions=[],
+            column_index=0,
+            column_span=0,
+            content="",
+            kind="",
+            row_index=0,
+            row_span=0,
+            spans=[span],
+        )
+        for span in spans
+    ]
+
+    # Create the paragraphs with the table spans
+    paragraphs_with_table_spans = [
+        DocumentParagraph(
+            bounding_regions=[],
+            content="",
+            role=None,
+            spans=[span],
+        )
+        for span in spans
+    ]
+
+    # Keep only the first table
+    one_page_analyse_result.tables = one_page_analyse_result.tables[:1]
+
+    # Replace the table content with the new cells
+    one_page_analyse_result.tables[0].cells = cells
+
+    # Extend the paragraphs with the paragraphs that reference the table content
+    one_page_analyse_result.paragraphs = (
+        paragraphs_with_table_spans + one_page_analyse_result.paragraphs
+    )
+
+    return one_page_analyse_result, paragraphs_with_table_spans, cells, spans
