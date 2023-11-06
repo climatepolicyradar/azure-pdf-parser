@@ -214,6 +214,7 @@ def get_all_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]
         (cell.spans[0].length, cell.spans[0].offset)
         for table in api_response.tables
         for cell in table.cells
+        if isinstance(cell.spans, list) and len(cell.spans) > 0
     }
 
 
