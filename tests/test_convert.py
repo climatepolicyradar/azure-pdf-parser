@@ -6,19 +6,26 @@ from azure.ai.formrecognizer import (
     DocumentTable,
     AnalyzeResult,
 )
-from cpr_data_access.parser_models import PDFTextBlock, ParserInput, ParserOutput
+from cpr_data_access.parser_models import (
+    PDFTextBlock,
+    ParserInput,
+    ParserOutput,
+    BlockType,
+)
 
 from azure_pdf_parser.base import DIMENSION_CONVERSION_FACTOR
-from azure_pdf_parser.experimental_base import (
-    ExperimentalPDFTableBlock,
-    ExperimentalParserOutput,
-    ExperimentalTableCell,
-)
 from azure_pdf_parser.convert import (
     polygon_to_co_ordinates,
     azure_paragraph_to_text_block,
     azure_table_to_table_block,
     azure_api_response_to_parser_output,
+    get_all_table_cell_spans,
+    tag_table_paragraphs,
+)
+from azure_pdf_parser.experimental_base import (
+    ExperimentalPDFTableBlock,
+    ExperimentalParserOutput,
+    ExperimentalTableCell,
 )
 
 
@@ -166,3 +173,113 @@ def test_azure_api_response_to_parser_output(
     )
     assert isinstance(parser_output, ParserOutput)
     parser_output.vertically_flip_text_block_coords().get_text_blocks()
+
+
+def test_get_table_cell_spans(analyze_result_known_table_content) -> None:
+    """Test that we can get the cell spans from a table block."""
+    # Get the input data
+    (
+        analyse_result,
+        paragraphs_with_table_spans,
+        cells,
+        spans,
+    ) = analyze_result_known_table_content
+
+    # Get the table spans
+    table_spans = get_all_table_cell_spans(analyse_result)
+
+    # Check the output
+    assert len(table_spans) > 0
+    assert len(table_spans) == len(spans)
+    assert table_spans == set([(span.offset, span.length) for span in spans])
+
+
+def test_tag_table_paragraphs(analyze_result_known_table_content) -> None:
+    """Test that we can successfully tag the paragraphs that are of the type table."""
+    # Get the input data
+    (
+        analyse_result,
+        paragraphs_with_table_spans,
+        cells,
+        spans,
+    ) = analyze_result_known_table_content
+
+    # Tag the table paragraphs
+    analyse_result_tagged = tag_table_paragraphs(analyse_result)
+
+    # Check the output
+    table_paragraphs = [
+        paragraph
+        for paragraph in analyse_result_tagged.paragraphs
+        if paragraph.role == BlockType.TABLE_CELL.value
+    ]
+
+    assert len(table_paragraphs) > 0
+    assert len(table_paragraphs) == len(paragraphs_with_table_spans)
+    assert table_paragraphs == paragraphs_with_table_spans
+
+    table_paragraph_spans = [paragraph.spans[0] for paragraph in table_paragraphs]
+    assert len(table_paragraph_spans) > 0
+    assert len(table_paragraph_spans) == len(spans)
+    assert table_paragraph_spans == spans
+
+
+def test_table_paragraph_assumptions(
+    one_page_analyse_result: AnalyzeResult,
+    sixteen_page_analyse_result: AnalyzeResult,
+) -> None:
+    """
+    Test the assumptions for tagging paragraphs as table blocks.
+
+    Assumptions:
+    - All the spans in an azure response are unique.
+    - All table text objects have a related paragraph.
+    - All the content and bounding regions are the same for related table and paragraph.
+    """
+    for result in [one_page_analyse_result, sixteen_page_analyse_result]:
+        # Create a list of all the table cells
+        table_cells = [cell for table in result.tables for cell in table.cells]
+
+        # Create a list of all the table cell spans as a tuple of (offset, length)
+        table_cell_spans = [
+            (cell.spans[0].offset, cell.spans[0].length) for cell in table_cells
+        ]
+
+        # Create a list of all the paragraph spans as a tuple of (offset, length)
+        paragraph_spans = [
+            (paragraph.spans[0].offset, paragraph.spans[0].length)
+            for paragraph in result.paragraphs
+        ]
+
+        # Create a mapping of the table cell and the related paragraph
+        table_cell_paragraph_mapping = []
+        for cell in table_cells:
+            for paragraph in result.paragraphs:
+                if (
+                    paragraph.spans[0].offset == cell.spans[0].offset
+                    and paragraph.spans[0].length == cell.spans[0].length
+                ):
+                    table_cell_paragraph_mapping.append((cell, paragraph))
+
+        # Check that all the paragraph spans are unique
+        assert len(paragraph_spans) == len(set(paragraph_spans))
+
+        # Check that all the table cell spans are unique
+        assert len(table_cell_spans) == len(set(table_cell_spans))
+
+        # Check each table cell span is in the paragraph spans
+        for span in table_cell_spans:
+            assert span in paragraph_spans
+
+        # Check that the content is the same
+        assert len(table_cell_paragraph_mapping) == len(table_cells)
+        for cell, paragraph in table_cell_paragraph_mapping:
+            assert cell.content == paragraph.content
+            assert len(cell.bounding_regions) == 1
+            assert len(paragraph.bounding_regions) == 1
+            assert cell.bounding_regions[0].page_number == (
+                paragraph.bounding_regions[0].page_number
+            )
+            assert cell.bounding_regions[0].polygon == (
+                paragraph.bounding_regions[0].polygon
+            )
