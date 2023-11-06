@@ -288,3 +288,30 @@ def analyze_result_known_table_content(
     )
 
     return one_page_analyse_result, paragraphs_with_table_spans, cells, spans
+
+
+@pytest.fixture
+def analyze_result_table_cell_no_spans(one_page_analyse_result) -> AnalyzeResult:
+    """Create an analyze result with a table cell containing no spans."""
+
+    # Create the cells
+    cells = [
+        DocumentTableCell(
+            bounding_regions=[],
+            column_index=0,
+            column_span=0,
+            content="",
+            kind="",
+            row_index=0,
+            row_span=0,
+            spans=[],
+        )
+    ]
+
+    # Keep only the first table
+    one_page_analyse_result.tables = one_page_analyse_result.tables[:1]
+
+    # Replace the table content with the new cells
+    one_page_analyse_result.tables[0].cells = cells
+
+    return one_page_analyse_result

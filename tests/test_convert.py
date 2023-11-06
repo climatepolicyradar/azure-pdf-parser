@@ -224,6 +224,15 @@ def test_tag_table_paragraphs(analyze_result_known_table_content) -> None:
     assert table_paragraph_spans == spans
 
 
+def test_tag_table_paragraphs_bad_data(
+    analyze_result_table_cell_no_spans: AnalyzeResult,
+) -> None:
+    """Test that we can successfully handle bad data in the table."""
+
+    # Tag the table paragraphs
+    tag_table_paragraphs(analyze_result_table_cell_no_spans)
+
+
 def test_table_paragraph_assumptions(
     one_page_analyse_result: AnalyzeResult,
     sixteen_page_analyse_result: AnalyzeResult,
