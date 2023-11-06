@@ -231,7 +231,7 @@ def pdf_page(one_page_analyse_result) -> PDFPagesBatchExtracted:
 
 
 @pytest.fixture
-def anaylze_result_known_table_content(
+def analyze_result_known_table_content(
     one_page_analyse_result,
 ) -> Tuple[
     AnalyzeResult,

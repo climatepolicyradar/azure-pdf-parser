@@ -1,13 +1,10 @@
 import unittest
-from typing import Sequence, Tuple
 
 from azure.ai.formrecognizer import (
     Point,
     DocumentParagraph,
     DocumentTable,
     AnalyzeResult,
-    DocumentSpan,
-    DocumentTableCell,
 )
 from cpr_data_access.parser_models import (
     PDFTextBlock,
@@ -17,11 +14,6 @@ from cpr_data_access.parser_models import (
 )
 
 from azure_pdf_parser.base import DIMENSION_CONVERSION_FACTOR
-from azure_pdf_parser.experimental_base import (
-    ExperimentalPDFTableBlock,
-    ExperimentalParserOutput,
-    ExperimentalTableCell,
-)
 from azure_pdf_parser.convert import (
     polygon_to_co_ordinates,
     azure_paragraph_to_text_block,
@@ -29,6 +21,11 @@ from azure_pdf_parser.convert import (
     azure_api_response_to_parser_output,
     get_all_table_cell_spans,
     tag_table_paragraphs,
+)
+from azure_pdf_parser.experimental_base import (
+    ExperimentalPDFTableBlock,
+    ExperimentalParserOutput,
+    ExperimentalTableCell,
 )
 
 
@@ -178,14 +175,7 @@ def test_azure_api_response_to_parser_output(
     parser_output.vertically_flip_text_block_coords().get_text_blocks()
 
 
-def test_get_table_cell_spans(
-    anaylze_result_known_table_content: Tuple[
-        AnalyzeResult,
-        Sequence[DocumentParagraph],
-        Sequence[DocumentTableCell],
-        Sequence[DocumentSpan],
-    ]
-) -> None:
+def test_get_table_cell_spans(analyze_result_known_table_content) -> None:
     """Test that we can get the cell spans from a table block."""
     # Get the input data
     (
@@ -193,7 +183,7 @@ def test_get_table_cell_spans(
         paragraphs_with_table_spans,
         cells,
         spans,
-    ) = anaylze_result_known_table_content
+    ) = analyze_result_known_table_content
 
     # Get the table spans
     table_spans = get_all_table_cell_spans(analyse_result)
@@ -204,14 +194,7 @@ def test_get_table_cell_spans(
     assert table_spans == set([(span.offset, span.length) for span in spans])
 
 
-def test_tag_table_paragraphs(
-    anaylze_result_known_table_content: Tuple[
-        AnalyzeResult,
-        Sequence[DocumentParagraph],
-        Sequence[DocumentTableCell],
-        Sequence[DocumentSpan],
-    ]
-) -> None:
+def test_tag_table_paragraphs(analyze_result_known_table_content) -> None:
     """Test that we can successfully tag the paragraphs that are of the type table."""
     # Get the input data
     (
@@ -219,7 +202,7 @@ def test_tag_table_paragraphs(
         paragraphs_with_table_spans,
         cells,
         spans,
-    ) = anaylze_result_known_table_content
+    ) = analyze_result_known_table_content
 
     # Tag the table paragraphs
     analyse_result_tagged = tag_table_paragraphs(analyse_result)

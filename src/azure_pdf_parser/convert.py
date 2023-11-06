@@ -219,7 +219,7 @@ def get_all_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]
 
 def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
     """
-    Table the paragraphs that contain data from a Table with the type table-text.
+    Tag the paragraphs that contain data from a Table with the type table-text.
 
     This is done using the span of the content.
     """
