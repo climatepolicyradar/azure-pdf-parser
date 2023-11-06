@@ -305,7 +305,17 @@ def analyze_result_table_cell_no_spans(one_page_analyse_result) -> AnalyzeResult
             row_index=0,
             row_span=0,
             spans=[],
-        )
+        ),
+        DocumentTableCell(
+            bounding_regions=[],
+            column_index=0,
+            column_span=0,
+            content="",
+            kind="",
+            row_index=0,
+            row_span=0,
+            spans=None,
+        ),
     ]
 
     # Keep only the first table
