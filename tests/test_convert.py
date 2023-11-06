@@ -230,7 +230,16 @@ def test_tag_table_paragraphs_bad_data(
     """Test that we can successfully handle bad data in the table."""
 
     # Tag the table paragraphs
-    tag_table_paragraphs(analyze_result_table_cell_no_spans)
+    analyse_result_tagged = tag_table_paragraphs(analyze_result_table_cell_no_spans)
+
+    # Check the output
+    table_paragraphs = [
+        paragraph
+        for paragraph in analyse_result_tagged.paragraphs
+        if paragraph.role == BlockType.TABLE_CELL.value
+    ]
+
+    assert len(table_paragraphs) == 0
 
 
 def test_table_paragraph_assumptions(

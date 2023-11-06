@@ -207,15 +207,15 @@ def get_all_table_cell_spans(api_response: AnalyzeResult) -> Set[Tuple[int, int]
 
     This is represented as a tuple of (length, offset).
     """
-    if api_response.tables is None:
-        return set()
+    table_cell_spans = set()
 
-    return {
-        (cell.spans[0].length, cell.spans[0].offset)
-        for table in api_response.tables
-        for cell in table.cells
-        if isinstance(cell.spans, list) and len(cell.spans) > 0
-    }
+    if api_response.tables is not None:
+        for table in api_response.tables:
+            for cell in table.cells:
+                if isinstance(cell.spans, list) and len(cell.spans) > 0:
+                    table_cell_spans.add((cell.spans[0].length, cell.spans[0].offset))
+
+    return table_cell_spans
 
 
 def tag_table_paragraphs(api_response: AnalyzeResult) -> AnalyzeResult:
