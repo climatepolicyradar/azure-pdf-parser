@@ -1,5 +1,5 @@
 from azure.ai.formrecognizer import AnalyzeResult
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 DIMENSION_CONVERSION_FACTOR = 72
 
@@ -7,10 +7,7 @@ DIMENSION_CONVERSION_FACTOR = 72
 class PDFPagesBatchExtracted(BaseModel):
     """A batch of pdf pages with content spanning a range of pages."""
 
-    class Config:
-        """Config for the pydantic model to use AnalyzeResult."""
-
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     page_range: tuple[int, int]
     extracted_content: AnalyzeResult
