@@ -272,9 +272,7 @@ def azure_api_response_to_parser_output(
         return (
             ExperimentalParserOutput(
                 document_id=parser_input.document_id,
-                # TODO confused why we now have to dump this object? Also, why not for
-                #  the ParserOutput object which is also tests?
-                document_metadata=parser_input.document_metadata.model_dump(),
+                document_metadata=parser_input.document_metadata,
                 document_name=parser_input.document_name,
                 document_description=parser_input.document_description,
                 document_source_url=parser_input.document_source_url,

@@ -1,6 +1,6 @@
 import logging
 from collections import Counter
-from typing import Sequence, Optional, List
+from typing import Sequence, Optional, Union, List
 
 from azure.ai.formrecognizer import Point
 from cpr_data_access.parser_models import (
@@ -10,6 +10,7 @@ from cpr_data_access.parser_models import (
     HTMLData,
     TextBlock,
 )
+from cpr_data_access.pipeline_general_models import BackendDocument
 from langdetect import DetectorFactory, detect
 from pydantic import BaseModel, AnyHttpUrl, model_validator
 
@@ -64,7 +65,7 @@ class ExperimentalParserOutput(BaseModel):
     """Experimental parser output with pdf data containing tables."""
 
     document_id: str
-    document_metadata: dict
+    document_metadata: BackendDocument
     document_name: str
     document_description: str
     document_source_url: Optional[AnyHttpUrl] = None
@@ -115,11 +116,13 @@ class ExperimentalParserOutput(BaseModel):
         :return: Sequence[TextBlock]
         """
         if self.document_content_type == CONTENT_TYPE_HTML:
-            html_data: HTMLData = self.html_data
-            return html_data.text_blocks
+            html_data: Union[HTMLData, None] = self.html_data
+            if html_data: 
+                return html_data.text_blocks
         elif self.document_content_type == CONTENT_TYPE_PDF:
-            pdf_data: PDFData = self.pdf_data
-            return pdf_data.text_blocks
+            pdf_data: Union[PDFData, None] = self.pdf_data
+            if pdf_data:
+                return pdf_data.text_blocks
         return []
 
     def to_string(self) -> str:  # type: ignore

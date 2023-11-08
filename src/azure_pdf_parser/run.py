@@ -69,7 +69,7 @@ def convert_and_save_api_response(
         document_id=import_id,
         document_name="",
         document_description="",
-        document_source_url=source_url,
+        document_source_url=source_url, # type: ignore
         document_cdn_object="",
         document_content_type="application/pdf",
         document_md5_sum="",
