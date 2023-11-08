@@ -69,7 +69,7 @@ def convert_and_save_api_response(
         document_id=import_id,
         document_name="",
         document_description="",
-        document_source_url=source_url,
+        document_source_url=source_url, # type: ignore
         document_cdn_object="",
         document_content_type="application/pdf",
         document_md5_sum="",
@@ -84,7 +84,7 @@ def convert_and_save_api_response(
         experimental_extract_tables=extract_tables,
     )
 
-    (output_dir / f"{import_id}.json").write_text(parser_output.json())
+    (output_dir / f"{import_id}.json").write_text(parser_output.model_dump_json())
 
     LOGGER.info(f"Successfully processed and saved {import_id}.")
 
@@ -106,7 +106,8 @@ def run_parser(
     :param ids_and_source_urls: optional iterable of [(document ID, source URL), ...].
     :param pdf_dir: optional directory of PDFs to parse. Filenames will be used as IDs.
     :param save_raw_azure_response: optionally save raw Azure API response to disk.
-    :param extract_tables: optionally extract structured representations of tables.
+    :param experimental_extract_tables: optionally extract structured representations of
+        tables.
     :raises ValueError: if neither source_url or pdf_dir are provided, or if Azure
     API keys are missing from environment variables.
     """

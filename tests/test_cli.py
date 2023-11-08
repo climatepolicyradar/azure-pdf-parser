@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -87,7 +86,7 @@ def test_cli_with_source_urls(
         output_dir_files = output_dir.glob("*.json")
         assert len(list(output_dir_files)) == 2
         for file in output_dir_files:
-            parser_output = ParserOutput.parse_obj(json.loads(file.read_text()))
+            parser_output = ParserOutput.model_validate_json(file.read_text())
             assert parser_output.document_id == file.stem
 
 
@@ -114,5 +113,5 @@ def test_cli_importable(mock_azure_client, monkeypatch):
         output_dir_files = output_dir.glob("*.json")
         assert len(list(output_dir_files)) == 2
         for file in output_dir_files:
-            parser_output = ParserOutput.parse_obj(json.loads(file.read_text()))
+            parser_output = ParserOutput.model_validate_json(file.read_text())
             assert parser_output.document_id == file.stem
