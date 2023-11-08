@@ -11,7 +11,7 @@ from cpr_data_access.parser_models import (
     TextBlock,
 )
 from langdetect import DetectorFactory, detect
-from pydantic import BaseModel, root_validator, AnyHttpUrl
+from pydantic import BaseModel, AnyHttpUrl, model_validator
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +67,10 @@ class ExperimentalParserOutput(BaseModel):
     document_metadata: dict
     document_name: str
     document_description: str
-    document_source_url: Optional[AnyHttpUrl]
-    document_cdn_object: Optional[str]
-    document_content_type: Optional[str]
-    document_md5_sum: Optional[str]
+    document_source_url: Optional[AnyHttpUrl] = None
+    document_cdn_object: Optional[str] = None
+    document_content_type: Optional[str] = None
+    document_md5_sum: Optional[str] = None
     document_slug: str
 
     languages: Optional[Sequence[str]] = None
@@ -78,35 +78,32 @@ class ExperimentalParserOutput(BaseModel):
     html_data: Optional[HTMLData] = None
     pdf_data: Optional[ExperimentalPDFData] = None
 
-    @root_validator
-    def check_html_pdf_metadata(cls, values):
+    @model_validator(mode="after")
+    def check_html_pdf_metadata(self):
         """
-        Validation for the data that is set.
+        Validate the relationship between content-type and the data that is set.
 
         Check that html_data is set if content_type is HTML, or pdf_data is set if
         content_type is PDF.
-        """
-        if (
-            values["document_content_type"] == CONTENT_TYPE_HTML
-            and values["html_data"] is None
-        ):
-            raise ValueError("html_metadata must be set for HTML documents")
 
-        if (
-            values["document_content_type"] == CONTENT_TYPE_PDF
-            and values["pdf_data"] is None
-        ):
+        Check that if the content-type is not HTML or PDF, then html_data and pdf_data
+        are both null.
+        """
+        if self.document_content_type == CONTENT_TYPE_HTML and self.html_data is None:
+            raise ValueError("html_data must be set for HTML documents")
+
+        if self.document_content_type == CONTENT_TYPE_PDF and self.pdf_data is None:
             raise ValueError("pdf_data must be set for PDF documents")
 
-        if values["document_content_type"] is None and (
-            values["html_data"] is not None or values["pdf_data"] is not None
-        ):
+        if self.document_content_type not in {
+            CONTENT_TYPE_HTML,
+            CONTENT_TYPE_PDF,
+        } and (self.html_data is not None or self.pdf_data is not None):
             raise ValueError(
-                "html_metadata and pdf_metadata must be null for documents with no "
-                "content type. "
+                "html_data and pdf_data must be null for documents with no content type"
             )
 
-        return values
+        return self
 
     @property
     def text_blocks(self) -> Sequence[TextBlock]:
