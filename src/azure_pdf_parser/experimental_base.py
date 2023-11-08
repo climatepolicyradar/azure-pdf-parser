@@ -117,7 +117,7 @@ class ExperimentalParserOutput(BaseModel):
         """
         if self.document_content_type == CONTENT_TYPE_HTML:
             html_data: Union[HTMLData, None] = self.html_data
-            if html_data: 
+            if html_data:
                 return html_data.text_blocks
         elif self.document_content_type == CONTENT_TYPE_PDF:
             pdf_data: Union[PDFData, None] = self.pdf_data

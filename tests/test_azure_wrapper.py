@@ -180,6 +180,6 @@ def test_document_split_sixty_eight_page(
             md5_sum="123456",
             api_response=merged_page_api_responses,
         )
-        
+
         assert isinstance(parser_output, ParserOutput)
         parser_output.vertically_flip_text_block_coords()
