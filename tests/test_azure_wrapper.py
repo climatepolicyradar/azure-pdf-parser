@@ -7,7 +7,7 @@ from azure_pdf_parser import (
     PDFPagesBatchExtracted,
     azure_api_response_to_parser_output,
 )
-from cpr_data_access.parser_models import ParserInput
+from cpr_data_access.parser_models import ParserInput, ParserOutput
 from azure_pdf_parser.utils import call_api_with_error_handling
 
 
@@ -181,4 +181,5 @@ def test_document_split_sixty_eight_page(
             api_response=merged_page_api_responses,
         )
 
+        assert isinstance(parser_output, ParserOutput)
         parser_output.vertically_flip_text_block_coords()
