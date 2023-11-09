@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Union, Callable, Optional, Iterable
+from pydantic import AnyHttpUrl
 import json
 
 from azure.ai.formrecognizer import AnalyzeResult
@@ -69,7 +70,7 @@ def convert_and_save_api_response(
         document_id=import_id,
         document_name="",
         document_description="",
-        document_source_url=source_url,  # type: ignore
+        document_source_url=(AnyHttpUrl(source_url) if source_url else None),
         document_cdn_object="",
         document_content_type="application/pdf",
         document_md5_sum="",

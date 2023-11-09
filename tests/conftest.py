@@ -9,7 +9,9 @@ from azure.ai.formrecognizer import (
     DocumentSpan,
     DocumentTableCell,
 )
+from pydantic import AnyHttpUrl
 from cpr_data_access.parser_models import ParserInput
+from cpr_data_access.pipeline_general_models import BackendDocument
 
 from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
 from tests.helpers import read_local_json_file, read_pdf_to_bytes
@@ -160,14 +162,18 @@ def mock_document_download_response_two_page(two_page_pdf_bytes) -> Mock:
 def document_paragraph() -> DocumentParagraph:
     """Construct a document paragraph object."""
     data = read_local_json_file("./tests/data/document-paragraph.json")
-    return DocumentParagraph.from_dict(data)  # type: ignore
+    if isinstance(data, list):
+        data = data[0]
+    return DocumentParagraph.from_dict(data)
 
 
 @pytest.fixture
 def document_table() -> DocumentTable:
     """Construct a document table object."""
     data = read_local_json_file("./tests/data/document-table.json")
-    return DocumentTable.from_dict(data)  # type: ignore
+    if isinstance(data, list):
+        data = data[0]
+    return DocumentTable.from_dict(data)
 
 
 @pytest.fixture
@@ -175,10 +181,10 @@ def parser_input(backend_document_json: dict) -> ParserInput:
     """A parser input object"""
     return ParserInput(
         document_id="123",
-        document_metadata=backend_document_json,  # type: ignore
+        document_metadata=BackendDocument.model_validate(backend_document_json),
         document_name="name",
         document_description="description",
-        document_source_url="https://example.com",  # type: ignore
+        document_source_url=AnyHttpUrl("https://example.com"),
         document_cdn_object="cdn_object",
         document_content_type="application/pdf",
         document_md5_sum="md5_sum_123_name",
@@ -191,10 +197,10 @@ def parser_input_no_content_type(backend_document_json: dict) -> ParserInput:
     """A parser input object with no content-type"""
     return ParserInput(
         document_id="123",
-        document_metadata=backend_document_json,  # type: ignore
+        document_metadata=BackendDocument.model_validate(backend_document_json),
         document_name="name",
         document_description="description",
-        document_source_url="https://example.com",  # type: ignore
+        document_source_url=AnyHttpUrl("https://example.com"),
         document_cdn_object="cdn_object",
         document_content_type=None,
         document_md5_sum="md5_sum_123_name",
