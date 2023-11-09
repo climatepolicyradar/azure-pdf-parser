@@ -132,6 +132,7 @@ def test_azure_api_response_to_parser_output(
         experimental_extract_tables=True,
     )
     assert isinstance(parser_output, ExperimentalParserOutput)
+    assert parser_output.pdf_data
     assert parser_output.pdf_data.table_blocks is not None
     assert parser_output.document_md5_sum == md5_sum
 
