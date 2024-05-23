@@ -16,6 +16,16 @@ runtimes:
     - python@3.10.8
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  definitions:
+    - name: bandit
+      direct_configs: [bandit.yaml]
+      commands:
+        - name: lint
+          run: bandit --exit-zero -c bandit.yaml --format json --output ${tmpfile}
+  ignore:
+    - linters: [osv-scanner]
+      paths:
+        - poetry.lock
   enabled:
     - actionlint@1.7.0
     - bandit@1.7.8
@@ -49,6 +59,7 @@ actions:
   disabled:
     - trunk-announce
     - trunk-check-pre-push
-    - trunk-fmt-pre-commit
   enabled:
+    - trunk-check-pre-commit
+    - trunk-fmt-pre-commit
     - trunk-upgrade-available
