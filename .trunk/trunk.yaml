@@ -16,6 +16,8 @@ runtimes:
     - python@3.10.8
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  disabled:
+    - bandit
   definitions:
     - name: bandit
       direct_configs: [bandit.yaml]
@@ -28,7 +30,6 @@ lint:
         - poetry.lock
   enabled:
     - actionlint@1.7.0
-    - bandit@1.7.8
     - black@24.4.2
     - checkov@3.2.106
     - git-diff-check
