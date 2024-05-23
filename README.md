@@ -57,14 +57,14 @@ python3
 
 Import the wrapper class and conversion function:
 
-```shell
+```python
 from azure_pdf_parser import AzureApiWrapper
 from azure_pdf_parser import azure_api_response_to_parser_output
 ```
 
 Instantiate client connection and call text extraction on a pdf accessible via an endpoint. Then convert to a parser output object:
 
-```shell
+```python
 azure_client = AzureApiWrapper(AZURE_KEY, AZURE_ENDPOINT)
 
 api_response = azure_client.analyze_document_from_url(
