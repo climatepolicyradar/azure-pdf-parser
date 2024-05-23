@@ -25,6 +25,20 @@ lint:
     - isort@5.13.2
     - markdownlint@0.40.0
     - osv-scanner@1.7.3
+    - pre-commit-hooks@4.6.0:
+        commands:
+          - check-ast
+          - check-case-conflict
+          - check-docstring-first
+          - check-json
+          - check-merge-conflict
+          - check-toml
+          - check-yaml
+          - debug-statements
+          - detect-aws-credentials --allow-missing-credentials
+          - end-of-file-fixer
+          - trailing-whitespace
+    - pyright@1.1.357
     - prettier@3.2.5
     - ruff@0.4.5
     - taplo@0.8.1
