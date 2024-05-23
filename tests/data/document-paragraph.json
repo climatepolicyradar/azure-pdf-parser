@@ -1,33 +1,33 @@
 {
-    "role": "Document Header",
-    "content": "UNITED STATES SECURITIES AND EXCHANGE COMMISSION Washington, D.C. 20549",
-    "bounding_regions": [
+  "role": "Document Header",
+  "content": "UNITED STATES SECURITIES AND EXCHANGE COMMISSION Washington, D.C. 20549",
+  "bounding_regions": [
+    {
+      "page_number": 1,
+      "polygon": [
         {
-            "page_number": 1,
-            "polygon": [
-                {
-                    "x": 2.1937,
-                    "y": 0.6828
-                },
-                {
-                    "x": 6.297,
-                    "y": 0.6828
-                },
-                {
-                    "x": 6.297,
-                    "y": 1.2483
-                },
-                {
-                    "x": 2.1937,
-                    "y": 1.2483
-                }
-            ]
-        }
-    ],
-    "spans": [
+          "x": 2.1937,
+          "y": 0.6828
+        },
         {
-            "offset": 0,
-            "length": 71
+          "x": 6.297,
+          "y": 0.6828
+        },
+        {
+          "x": 6.297,
+          "y": 1.2483
+        },
+        {
+          "x": 2.1937,
+          "y": 1.2483
         }
-    ]
+      ]
+    }
+  ],
+  "spans": [
+    {
+      "offset": 0,
+      "length": 71
+    }
+  ]
 }

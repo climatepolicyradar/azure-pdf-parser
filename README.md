@@ -36,7 +36,7 @@ poetry run python -m src.cli --output-dir output --source_url cclw.executive.1.1
 
 The CLI can also be run programmatically, which is a shortcut for the below.
 
-``` python
+```python
 from azure_pdf_parser.run import run_parser
 
 # Saves JSONs named by IDs to output_dir
@@ -52,7 +52,7 @@ Install dependencies and enter the python shell:
 
 ```shell
 poetry install
-python3 
+python3
 ```
 
 Import the wrapper class and conversion function:

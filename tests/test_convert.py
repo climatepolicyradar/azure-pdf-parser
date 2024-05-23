@@ -1,30 +1,30 @@
 import unittest
 
 from azure.ai.formrecognizer import (
-    Point,
+    AnalyzeResult,
     DocumentParagraph,
     DocumentTable,
-    AnalyzeResult,
+    Point,
 )
 from cpr_data_access.parser_models import (
-    PDFTextBlock,
+    BlockType,
     ParserInput,
     ParserOutput,
-    BlockType,
+    PDFTextBlock,
 )
 
 from azure_pdf_parser.base import DIMENSION_CONVERSION_FACTOR
 from azure_pdf_parser.convert import (
-    polygon_to_co_ordinates,
+    azure_api_response_to_parser_output,
     azure_paragraph_to_text_block,
     azure_table_to_table_block,
-    azure_api_response_to_parser_output,
     get_all_table_cell_spans,
+    polygon_to_co_ordinates,
     tag_table_paragraphs,
 )
 from azure_pdf_parser.experimental_base import (
-    ExperimentalPDFTableBlock,
     ExperimentalParserOutput,
+    ExperimentalPDFTableBlock,
     ExperimentalTableCell,
 )
 

@@ -3,12 +3,12 @@ name = "azure-pdf-parser"
 version = "0.1.0"
 description = ""
 authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
-packages = [{include = "azure_pdf_parser", from = "src"}]
+packages = [{ include = "azure_pdf_parser", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 azure-ai-formrecognizer = "^3.2.1"
-cpr-data-access = {git = "https://github.com/climatepolicyradar/data-access.git", tag="0.4.0"}
+cpr-data-access = { git = "https://github.com/climatepolicyradar/data-access.git", tag = "0.4.0" }
 requests = "^2.31.0"
 langdetect = "^1.0.9"
 pypdf = "^3.15.0"
@@ -40,10 +40,7 @@ env_files = """
     .env.test
     .env
 """
-markers = [
-    "search",
-    "unit",
-]
+markers = ["search", "unit"]
 
 [tool.black]
 line-length = 88
@@ -65,7 +62,21 @@ select = ["E", "F", "D"]
 # D407 - Missing dashed underline after section
 # D413 - Missing blank line after last section
 # D415 - First line should end with a period, question mark, or exclamation point
-ignore = ["D100", "D103", "D104", "D107", "D202", "D203", "D212", "D400", "D401", "D406", "D407", "D413", "D415"]
+ignore = [
+  "D100",
+  "D103",
+  "D104",
+  "D107",
+  "D202",
+  "D203",
+  "D212",
+  "D400",
+  "D401",
+  "D406",
+  "D407",
+  "D413",
+  "D415",
+]
 line-length = 88
 
 # Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.

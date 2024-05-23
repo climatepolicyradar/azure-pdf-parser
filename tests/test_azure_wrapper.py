@@ -1,15 +1,15 @@
 from typing import Sequence
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
 from azure.ai.formrecognizer import AnalyzeResult
+from cpr_data_access.parser_models import ParserInput, ParserOutput
 
 from azure_pdf_parser import (
     AzureApiWrapper,
     PDFPagesBatchExtracted,
     azure_api_response_to_parser_output,
 )
-from cpr_data_access.parser_models import ParserInput, ParserOutput
 from azure_pdf_parser.utils import call_api_with_error_handling
-
 
 # TODO test non english document
 
