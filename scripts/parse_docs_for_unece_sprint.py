@@ -35,7 +35,7 @@ def recursive_delete(path: Path):
 data_dir = Path("./data")
 
 with console.status("📂 Setting up data directory"):
-    # recursive_delete(data_dir)
+    recursive_delete(data_dir)
     pdf_dir = data_dir / "pdfs"
     pdf_dir.mkdir(exist_ok=True, parents=True)
 
@@ -156,7 +156,7 @@ console.print("📄 All PDFs parsed successfully", style="green")
 
 session = boto3.Session(profile_name="labs")
 s3_client = session.client("s3", region_name="eu-west-1")
-bucket_name = "cpr-unece-sprint-data"
+bucket_name = "cpr-unece-sprint"
 existing_buckets = [
     bucket["Name"] for bucket in s3_client.list_buckets().get("Buckets")
 ]
