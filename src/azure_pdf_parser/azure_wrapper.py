@@ -1,18 +1,17 @@
 import io
-import sys
-from io import BytesIO
-import time
-from typing import Tuple, Sequence, Union, Optional
 import logging
-import requests
+import sys
+import time
+from io import BytesIO
+from typing import Optional, Sequence, Tuple, Union
 
+import requests
 from azure.ai.formrecognizer import AnalyzeResult, DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
 from azure.core.polling import LROPoller
 
-from .utils import split_into_batches, merge_responses
 from .base import PDFPagesBatchExtracted
-from .utils import call_api_with_error_handling
+from .utils import call_api_with_error_handling, merge_responses, split_into_batches
 
 logger = logging.getLogger(__name__)
 

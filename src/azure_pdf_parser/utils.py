@@ -1,13 +1,13 @@
 import hashlib
 import io
-from io import BytesIO
-from typing import Sequence, Any, Optional
 import logging
+from io import BytesIO
+from typing import Any, Optional, Sequence
 
-from pypdf import PdfReader, PdfWriter
 from azure.ai.formrecognizer import AnalyzeResult
+from pypdf import PdfReader, PdfWriter
 
-from .base import PDFPagesBatchExtracted, PDFPagesBatch
+from .base import PDFPagesBatch, PDFPagesBatchExtracted
 
 logger = logging.getLogger(__name__)
 

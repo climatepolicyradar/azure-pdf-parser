@@ -1,15 +1,15 @@
+import json
 import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Union, Callable, Optional, Iterable
-from pydantic import AnyHttpUrl
-import json
+from typing import Callable, Iterable, Optional, Union
 
 from azure.ai.formrecognizer import AnalyzeResult
 from azure.core.exceptions import HttpResponseError
 from cpr_data_access.parser_models import BackendDocument, ParserInput
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
+from pydantic import AnyHttpUrl
 from tqdm.auto import tqdm
 
 from azure_pdf_parser import AzureApiWrapper

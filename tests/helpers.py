@@ -1,6 +1,6 @@
+import io
 import json
 import re
-import io
 from typing import Union
 
 
