@@ -136,6 +136,7 @@ for source, urls in pdf_source_urls.items():
     for url in urls:
         response = client.get(url)
         response.raise_for_status()
+        # the source documents are not uniquely named, so we use the hash of the URL
         file_name = str(hash(url)) + ".pdf"
         file_path = source_dir / file_name
         with file_path.open("wb") as file:
