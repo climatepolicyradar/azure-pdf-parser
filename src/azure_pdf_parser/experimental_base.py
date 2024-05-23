@@ -140,7 +140,7 @@ class ExperimentalParserOutput(BaseModel):
         that a document only has one language.
         """
 
-        # FIXME: We can remove this now as this api doesn't support language detection
+        # TODO: We can remove this now as this api doesn't support language detection
         if self.document_content_type != CONTENT_TYPE_HTML:
             logger.warning(
                 "Language detection should not be required for non-HTML documents, "
