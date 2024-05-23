@@ -1,17 +1,17 @@
-from typing import Tuple, Sequence
+from typing import Sequence, Tuple
 from unittest.mock import MagicMock, Mock
 
 import pytest
 from azure.ai.formrecognizer import (
     AnalyzeResult,
     DocumentParagraph,
-    DocumentTable,
     DocumentSpan,
+    DocumentTable,
     DocumentTableCell,
 )
-from pydantic import AnyHttpUrl
 from cpr_data_access.parser_models import ParserInput
 from cpr_data_access.pipeline_general_models import BackendDocument
+from pydantic import AnyHttpUrl
 
 from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted
 from tests.helpers import read_local_json_file, read_pdf_to_bytes

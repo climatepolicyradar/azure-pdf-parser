@@ -1,29 +1,29 @@
-from typing import Sequence, Union, Set, Tuple
 import logging
+from typing import Sequence, Set, Tuple, Union
 
 from azure.ai.formrecognizer import (
     AnalyzeResult,
     DocumentParagraph,
-    Point,
     DocumentTable,
+    Point,
 )
 from cpr_data_access.parser_models import (
-    ParserOutput,
-    PDFTextBlock,
-    PDFData,
-    PDFPageMetadata,
-    ParserInput,
     CONTENT_TYPE_PDF,
     BlockType,
+    ParserInput,
+    ParserOutput,
+    PDFData,
+    PDFPageMetadata,
+    PDFTextBlock,
 )
 
 from .base import DIMENSION_CONVERSION_FACTOR
 from .experimental_base import (
-    ExperimentalTableCell,
     ExperimentalBoundingRegion,
-    ExperimentalPDFTableBlock,
-    ExperimentalPDFData,
     ExperimentalParserOutput,
+    ExperimentalPDFData,
+    ExperimentalPDFTableBlock,
+    ExperimentalTableCell,
 )
 
 logger = logging.getLogger(__name__)
