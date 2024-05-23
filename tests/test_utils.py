@@ -8,10 +8,10 @@ from azure_pdf_parser import PDFPagesBatchExtracted
 from azure_pdf_parser.base import PDFPagesBatch
 from azure_pdf_parser.utils import (
     calculate_md5_sum,
-    propagate_page_number,
-    merge_responses,
-    split_into_batches,
     call_api_with_error_handling,
+    merge_responses,
+    propagate_page_number,
+    split_into_batches,
 )
 from tests.helpers import is_valid_md5, is_valid_pdf
 

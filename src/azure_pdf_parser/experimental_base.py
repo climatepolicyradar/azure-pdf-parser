@@ -1,18 +1,18 @@
 import logging
 from collections import Counter
-from typing import Sequence, Optional, Union, List
+from typing import List, Optional, Sequence, Union
 
 from azure.ai.formrecognizer import Point
 from cpr_data_access.parser_models import (
-    PDFData,
     CONTENT_TYPE_HTML,
     CONTENT_TYPE_PDF,
     HTMLData,
+    PDFData,
     TextBlock,
 )
 from cpr_data_access.pipeline_general_models import BackendDocument
 from langdetect import DetectorFactory, detect
-from pydantic import BaseModel, AnyHttpUrl, model_validator
+from pydantic import AnyHttpUrl, BaseModel, model_validator
 
 logger = logging.getLogger(__name__)
 
