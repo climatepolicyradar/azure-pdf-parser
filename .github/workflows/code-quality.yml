@@ -1,0 +1,19 @@
+name: code-quality
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  code-quality:
+    permissions:
+      # For trunk to post annotations
+      checks: write
+      # For repo checkout
+      contents: read
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@v3
