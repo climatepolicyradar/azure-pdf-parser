@@ -155,3 +155,6 @@ backend/models
 
 # Poetry
 poetry.toml
+
+# Pyright
+pyrightconfig.json
