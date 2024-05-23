@@ -27,4 +27,4 @@ console.print(f"📄 Got a document from the bucket: {key}", style="green")
 
 # Check if the document can be loaded using the CPR SDK
 document = BaseParserOutput.model_validate_json(response["Body"].read())
-console.print(f"🥳 Document was successfully loaded by the CPR SDK", style="green")
+console.print("🥳 Document was successfully loaded by the CPR SDK", style="green")
