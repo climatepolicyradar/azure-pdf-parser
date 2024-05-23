@@ -8,13 +8,15 @@ Make sure you've set up your AWS credentials for the labs profile by running
 `aws sso login --profile labs` before running this script.
 """
 
-import boto3
-from azure_pdf_parser.run import run_parser
-import httpx
 from pathlib import Path
+
+import boto3
+import httpx
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.progress import Progress, track
-from dotenv import load_dotenv
+
+from azure_pdf_parser.run import run_parser
 
 load_dotenv()
 
