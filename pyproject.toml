@@ -12,6 +12,7 @@ cpr-data-access = { git = "https://github.com/climatepolicyradar/data-access.git
 requests = "^2.31.0"
 langdetect = "^1.0.9"
 pypdf = "^3.15.0"
+numpy = "1.26.4"
 
 
 [tool.poetry.group.dev.dependencies]
