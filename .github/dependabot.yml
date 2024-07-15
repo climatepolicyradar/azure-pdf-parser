@@ -4,7 +4,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    reviewers:
+      - "climatepolicyradar/deng"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    reviewers:
+      - "climatepolicyradar/deng"
