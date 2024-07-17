@@ -31,9 +31,6 @@ jobs:
           python -m pip install poetry
           poetry install
 
-      - name: Export PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
-
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1
         with:
