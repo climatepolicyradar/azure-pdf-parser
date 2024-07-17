@@ -24,9 +24,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install poetry
-          poetry config virtualenvs.create false
-          poetry install --only-root
-          poetry run pip list | grep pytest
+          poetry install --no-root
+
+      - name: Check for pytest
+        run: poetry run pip list
 
       - name: Run test suite
         run: make test
