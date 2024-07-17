@@ -6,12 +6,7 @@ from azure.ai.formrecognizer import (
     DocumentTable,
     Point,
 )
-from cpr_sdk.parser_models import (
-    BlockType,
-    ParserInput,
-    ParserOutput,
-    PDFTextBlock,
-)
+from cpr_sdk.parser_models import BlockType, ParserInput, ParserOutput, PDFTextBlock
 
 from azure_pdf_parser.base import DIMENSION_CONVERSION_FACTOR
 from azure_pdf_parser.convert import (
