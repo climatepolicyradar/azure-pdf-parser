@@ -7,7 +7,7 @@ from typing import Callable, Iterable, Optional, Union
 
 from azure.ai.formrecognizer import AnalyzeResult
 from azure.core.exceptions import HttpResponseError
-from cpr_data_access.parser_models import BackendDocument, ParserInput
+from cpr_sdk.parser_models import BackendDocument, ParserInput
 from dotenv import find_dotenv, load_dotenv
 from pydantic import AnyHttpUrl
 from tqdm.auto import tqdm
@@ -119,7 +119,7 @@ def run_parser(
 
     if not AZURE_PROCESSOR_KEY or not AZURE_PROCESSOR_ENDPOINT:
         raise ValueError(
-            """Missing Azure API credentials. Set AZURE_PROCESSOR_KEY and 
+            """Missing Azure API credentials. Set AZURE_PROCESSOR_KEY and
             AZURE_PROCESSOR_ENDPOINT environment variables."""
         )
 
