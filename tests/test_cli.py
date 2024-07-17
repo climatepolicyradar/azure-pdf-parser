@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from cpr_data_access.parser_models import ParserOutput
+from cpr_sdk.parser_models import ParserOutput
 
 from src.azure_pdf_parser import AzureApiWrapper
 
