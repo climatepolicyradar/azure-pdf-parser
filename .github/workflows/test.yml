@@ -26,8 +26,5 @@ jobs:
           python -m pip install poetry
           poetry install
 
-      - name: Check for pytest
-        run: poetry run pip list
-
       - name: Run test suite
         run: make test
