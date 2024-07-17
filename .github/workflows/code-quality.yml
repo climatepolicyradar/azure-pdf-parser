@@ -26,9 +26,7 @@ jobs:
           python-version: "3.9"
 
       - name: Install Poetry
-        run: |
-          python -m pip install poetry
-          poetry config virtualenvs.create false
+        run: python -m pip install poetry
 
       - name: Install dependencies
         run: poetry install
