@@ -16,22 +16,17 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry==1.2.2
-
-      - name: Install python or load from cache with dependencies
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
-          cache: poetry
 
       - name: Install dependencies
         run: |
-          poetry install
+          python -m pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --only-root
+          poetry run pip list | grep pytest
 
       - name: Run test suite
-        run: |
-          poetry run python -m pytest \
-          --nbmake \
-          --nbmake-find-import-errors \
-          --nbmake-timeout=20 -vvv
+        run: make test
