@@ -3,14 +3,14 @@ from collections import Counter
 from typing import List, Optional, Sequence, Union
 
 from azure.ai.formrecognizer import Point
-from cpr_data_access.parser_models import (
+from cpr_sdk.parser_models import (
     CONTENT_TYPE_HTML,
     CONTENT_TYPE_PDF,
     HTMLData,
     PDFData,
     TextBlock,
 )
-from cpr_data_access.pipeline_general_models import BackendDocument
+from cpr_sdk.pipeline_general_models import BackendDocument
 from langdetect import DetectorFactory, detect
 from pydantic import AnyHttpUrl, BaseModel, model_validator
 
