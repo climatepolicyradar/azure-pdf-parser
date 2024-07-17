@@ -2,7 +2,7 @@ from typing import Sequence
 from unittest.mock import Mock, patch
 
 from azure.ai.formrecognizer import AnalyzeResult
-from cpr_data_access.parser_models import ParserInput, ParserOutput
+from cpr_sdk.parser_models import ParserInput, ParserOutput
 
 from azure_pdf_parser import (
     AzureApiWrapper,

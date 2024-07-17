@@ -7,7 +7,7 @@ from azure.ai.formrecognizer import (
     DocumentTable,
     Point,
 )
-from cpr_data_access.parser_models import (
+from cpr_sdk.parser_models import (
     CONTENT_TYPE_PDF,
     BlockType,
     ParserInput,
