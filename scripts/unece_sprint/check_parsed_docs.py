@@ -1,7 +1,7 @@
 """Check whether the UNECE documents can be loaded using the CPR SDK"""
 
 import boto3
-from cpr_data_access.parser_models import BaseParserOutput
+from cpr_sdk.parser_models import BaseParserOutput
 from rich.console import Console
 
 console = Console()
