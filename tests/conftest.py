@@ -9,8 +9,8 @@ from azure.ai.formrecognizer import (
     DocumentTable,
     DocumentTableCell,
 )
-from cpr_data_access.parser_models import ParserInput
-from cpr_data_access.pipeline_general_models import BackendDocument
+from cpr_sdk.parser_models import ParserInput
+from cpr_sdk.pipeline_general_models import BackendDocument
 from pydantic import AnyHttpUrl
 
 from azure_pdf_parser import AzureApiWrapper, PDFPagesBatchExtracted

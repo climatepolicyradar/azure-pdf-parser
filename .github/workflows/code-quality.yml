@@ -18,19 +18,21 @@ jobs:
       # For repo checkout
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
-          python -m pip install "poetry==1.7.0"
-          poetry config virtualenvs.create false
-          poetry install --no-cache
-          poetry install --only-root
+          python -m pip install poetry
+          poetry install --no-root
+
+      - name: Check for pytest
+        run: poetry run pip list
 
       - name: Export PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
