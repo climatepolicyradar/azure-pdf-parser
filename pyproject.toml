@@ -11,7 +11,7 @@ azure-ai-formrecognizer = "^3.2.1"
 cpr-sdk = "^1.1.6"
 requests = "^2.31.0"
 langdetect = "^1.0.9"
-pypdf = "^3.15.0"
+pypdf = "^4.3.1"
 
 
 [tool.poetry.group.dev.dependencies]
