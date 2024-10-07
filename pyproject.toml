@@ -8,17 +8,17 @@ packages = [{ include = "azure_pdf_parser", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 azure-ai-formrecognizer = "^3.2.1"
-cpr-sdk = "^1.7.1"
+cpr-sdk = "^1.8.0"
 requests = "^2.31.0"
 langdetect = "^1.0.9"
 pypdf = "^5.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.6.8"
+ruff = "^0.6.9"
 black = "^24.8.0"
-pyright = "^1.1.382"
-pre-commit = "^3.8.0"
+pyright = "^1.1.383"
+pre-commit = "^4.0.0"
 python-dotenv = "^1.0.1"
 pytest = "^8.3.3"
 pytest-dotenv = "^0.5.2"
@@ -30,8 +30,8 @@ mock = "^5.1.0"
 click = "^8.1.7"
 
 [tool.poetry.group.scripts.dependencies]
-rich = "^13.8.1"
-boto3 = "^1.35.24"
+rich = "^13.9.2"
+boto3 = "^1.35.34"
 httpx = "^0.27.0"
 
 [build-system]
