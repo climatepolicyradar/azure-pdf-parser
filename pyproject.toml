@@ -31,7 +31,7 @@ click = "^8.1.8"
 
 [tool.poetry.group.scripts.dependencies]
 rich = "^13.9.4"
-boto3 = "^1.35.86"
+boto3 = "^1.35.90"
 httpx = "^0.28.1"
 
 [build-system]
