@@ -8,7 +8,6 @@ from azure.ai.formrecognizer import (
     Point,
 )
 from cpr_sdk.parser_models import (
-    CONTENT_TYPE_PDF,
     BlockType,
     ParserInput,
     ParserOutput,
@@ -259,8 +258,14 @@ def azure_api_response_to_parser_output(
         Whether to extract tables from the API response.
     """
 
-    if parser_input.document_content_type != CONTENT_TYPE_PDF:
-        raise ValueError("Document content type must be PDF.")
+    if parser_input.document_cdn_object is None:
+        raise ValueError("Document must have a CDN object. None provided.")
+
+    if (
+        parser_input.document_cdn_object is not None
+        and not parser_input.document_cdn_object.lower().endswith(".pdf")
+    ):
+        raise ValueError("CDN object must be a PDF.")
 
     api_response = tag_table_paragraphs(api_response)
     text_blocks = extract_azure_api_response_paragraphs(api_response)
