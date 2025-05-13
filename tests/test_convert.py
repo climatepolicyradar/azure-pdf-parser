@@ -120,7 +120,7 @@ def test_azure_api_response_to_parser_output(
     assert isinstance(parser_output, ParserOutput)
     assert parser_output.document_md5_sum == md5_sum
     assert parser_output.pdf_data
-    
+
     parser_output_html = azure_api_response_to_parser_output(
         parser_input=parser_input_html,
         md5_sum=md5_sum,
@@ -158,7 +158,6 @@ def test_azure_api_response_to_parser_output(
             md5_sum=md5_sum,
             api_response=one_page_analyse_result,
         )
-
 
     # Test that we can call the vertically_flip_text_block_coords method on the
     # ParserOutput, this will assert that the page numbers are correct as well.

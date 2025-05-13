@@ -262,7 +262,10 @@ def azure_api_response_to_parser_output(
     if parser_input.document_cdn_object is None:
         raise ValueError("Document must have a CDN object. None provided.")
 
-    if parser_input.document_cdn_object is not None and not parser_input.document_cdn_object.lower().endswith(".pdf"):
+    if (
+        parser_input.document_cdn_object is not None
+        and not parser_input.document_cdn_object.lower().endswith(".pdf")
+    ):
         raise ValueError("CDN object must be a PDF.")
 
     api_response = tag_table_paragraphs(api_response)

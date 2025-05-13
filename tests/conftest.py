@@ -191,6 +191,7 @@ def parser_input(backend_document_json: dict) -> ParserInput:
         document_slug="slug_123_name",
     )
 
+
 @pytest.fixture
 def parser_input_html(backend_document_json: dict) -> ParserInput:
     """A document which was originally an HTML and has been converted to a PDF"""
