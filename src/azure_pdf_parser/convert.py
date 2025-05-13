@@ -8,7 +8,6 @@ from azure.ai.formrecognizer import (
     Point,
 )
 from cpr_sdk.parser_models import (
-    CONTENT_TYPE_PDF,
     BlockType,
     ParserInput,
     ParserOutput,
