@@ -71,7 +71,7 @@ def convert_and_save_api_response(
         document_name="",
         document_description="",
         document_source_url=(AnyHttpUrl(source_url) if source_url else None),
-        document_cdn_object="",
+        document_cdn_object="run-using-cli.pdf",
         document_content_type="application/pdf",
         document_md5_sum="",
         document_slug="",
