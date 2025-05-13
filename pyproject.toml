@@ -8,7 +8,7 @@ packages = [{ include = "azure_pdf_parser", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 azure-ai-formrecognizer = "^3.2.1"
-cpr-sdk = "^1.11.0"
+cpr-sdk = "^1.18.4"
 requests = "^2.31.0"
 langdetect = "^1.0.9"
 pypdf = "^5.1.0"
