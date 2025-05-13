@@ -185,8 +185,23 @@ def parser_input(backend_document_json: dict) -> ParserInput:
         document_name="name",
         document_description="description",
         document_source_url=AnyHttpUrl("https://example.com"),
-        document_cdn_object="cdn_object",
+        document_cdn_object="cdn_object.pdf",
         document_content_type="application/pdf",
+        document_md5_sum="md5_sum_123_name",
+        document_slug="slug_123_name",
+    )
+
+@pytest.fixture
+def parser_input_html(backend_document_json: dict) -> ParserInput:
+    """A document which was originally an HTML and has been converted to a PDF"""
+    return ParserInput(
+        document_id="123",
+        document_metadata=BackendDocument.model_validate(backend_document_json),
+        document_name="name",
+        document_description="description",
+        document_source_url=AnyHttpUrl("https://example.com"),
+        document_cdn_object="cdn_object.pdf",
+        document_content_type="text/html",
         document_md5_sum="md5_sum_123_name",
         document_slug="slug_123_name",
     )
@@ -201,7 +216,7 @@ def parser_input_no_content_type(backend_document_json: dict) -> ParserInput:
         document_name="name",
         document_description="description",
         document_source_url=AnyHttpUrl("https://example.com"),
-        document_cdn_object="cdn_object",
+        document_cdn_object=None,
         document_content_type=None,
         document_md5_sum="md5_sum_123_name",
         document_slug="slug_123_name",

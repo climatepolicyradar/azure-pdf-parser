@@ -105,6 +105,7 @@ def test_azure_api_response_to_parser_output(
     parser_input: ParserInput,
     parser_input_no_content_type: ParserInput,
     parser_input_empty_optional_fields: ParserInput,
+    parser_input_html: ParserInput,
     one_page_analyse_result: AnalyzeResult,
 ) -> None:
     """Test that we can convert an azure api response to a parser output object."""
@@ -118,6 +119,16 @@ def test_azure_api_response_to_parser_output(
     )
     assert isinstance(parser_output, ParserOutput)
     assert parser_output.document_md5_sum == md5_sum
+    assert parser_output.pdf_data
+    
+    parser_output_html = azure_api_response_to_parser_output(
+        parser_input=parser_input_html,
+        md5_sum=md5_sum,
+        api_response=one_page_analyse_result,
+    )
+    assert isinstance(parser_output_html, ParserOutput)
+    assert parser_output_html.document_md5_sum == md5_sum
+    assert parser_output_html.pdf_data is not None
 
     # Convert with experimental tables
     parser_output = azure_api_response_to_parser_output(
@@ -138,7 +149,7 @@ def test_azure_api_response_to_parser_output(
             md5_sum=md5_sum,
             api_response=one_page_analyse_result,
         )
-    assert str(context.exception) == "Document content type must be PDF."
+    assert str(context.exception) == "Document must have a CDN object. None provided."
 
     # Convert with a parser input object containing empty optional fields
     with unittest.TestCase().assertRaises(ValueError) as context:
@@ -147,18 +158,7 @@ def test_azure_api_response_to_parser_output(
             md5_sum=md5_sum,
             api_response=one_page_analyse_result,
         )
-    assert str(context.exception) == "Document content type must be PDF."
 
-    # Convert with a parser input object containing empty optional fields and
-    # experimental tables
-    with unittest.TestCase().assertRaises(ValueError) as context:
-        azure_api_response_to_parser_output(
-            parser_input=parser_input_empty_optional_fields,
-            md5_sum=md5_sum,
-            api_response=one_page_analyse_result,
-            experimental_extract_tables=True,
-        )
-    assert str(context.exception) == "Document content type must be PDF."
 
     # Test that we can call the vertically_flip_text_block_coords method on the
     # ParserOutput, this will assert that the page numbers are correct as well.
