@@ -1,15 +1,1 @@
-###############################################################################
-# GitHub Code-owner Configuration for azure-pdf-parser
-#
-# Each line is a file pattern followed by one or more owners. See this link:
-# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#example-of-a-codeowners-file
-# for more information on configuring GitHub code owners, including examples.
-###############################################################################
-
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence, members
-# of @climatepolicyradar/deng will be requested for
-# review when someone opens a pull request. Teams should
-# be identified in the format @org/team-name. Teams must have
-# explicit write access to the repository.
 * @climatepolicyradar/deng
