@@ -11,14 +11,14 @@ azure-ai-formrecognizer = "^3.2.1"
 cpr-sdk = "^1.20.1"
 requests = "^2.32.4"
 langdetect = "^1.0.9"
-pypdf = "^5.8.0"
+pypdf = "^6.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.12.3"
+ruff = "^0.12.8"
 black = "^25.1.0"
 pyright = "^1.1.403"
-pre-commit = "^4.2.0"
+pre-commit = "^4.3.0"
 python-dotenv = "^1.1.1"
 pytest = "^8.4.1"
 pytest-dotenv = "^0.5.2"
@@ -31,7 +31,7 @@ click = "^8.2.1"
 
 [tool.poetry.group.scripts.dependencies]
 rich = "^13.9.4"
-boto3 = "^1.39.4"
+boto3 = "^1.40.6"
 httpx = "^0.28.1"
 
 [build-system]
