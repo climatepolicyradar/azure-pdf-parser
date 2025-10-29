@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "azure-pdf-parser"
-version = "0.4.3"
+version = "0.5.0"
 description = ""
 authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
 packages = [{ include = "azure_pdf_parser", from = "src" }]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
+python = ">=3.10,<3.14"
 azure-ai-formrecognizer = "^3.2.1"
-cpr-sdk = "^1.20.1"
+cpr-sdk = "^4.0.0"
 requests = "^2.32.5"
 langdetect = "^1.0.9"
 pypdf = "^6.1.3"
