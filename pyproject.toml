@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "azure-pdf-parser"
-version = "0.5.0"
+version = "0.5.1"
 description = ""
 authors = ["CPR-tech-team <tech@climatepolicyradar.org>"]
 packages = [{ include = "azure_pdf_parser", from = "src" }]
