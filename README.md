@@ -1,5 +1,10 @@
 # Azure PDF Parser
 
+## ⚠️ Archival Notice
+
+> **Note**: This repository is now **archived**. It is no longer maintained and will not receive any further updates, bug fixes, or security patches. The code is provided "as-is" for historical reference. The code has since been migrated to https://github.com/climatepolicyradar/navigator-data-pipeline, where it continues to be maintained. 
+---
+
 ## Context
 
 This repo provides a python wrapper class for calling text extraction on local or url accessible pdf documents.
